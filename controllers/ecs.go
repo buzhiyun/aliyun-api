@@ -20,7 +20,18 @@ type searchHostReq struct {
 }
 
 
-// 搜索主机，支持通配符*
+
+// SearchHost godoc
+// @Summary      搜索主机，支持通配符*
+// @Description  获取主机列表
+// @Tags         ecs
+// @Accept       json
+// @Produce      json
+// @Param   json  body     searchHostReq   true  "hostname 和 ip 不能同时为空"
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/ecs/search [post]
 func SearchHost(ctx iris.Context)  {
 	var data searchHostReq
 	err := ctx.ReadJSON(&data)
@@ -57,8 +68,17 @@ func SearchHost(ctx iris.Context)  {
 
 
 
-
-// 刷新ecs实例列表
+// SearchHost godoc
+// @Summary      刷新ecs实例列表
+// @Description  刷新ecs实例列表
+// @Tags         ecs
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/ecs/refresh [post]
+//
 func RefreshHost(ctx iris.Context)  {
 	golog.Infof("[ecs] %s 尝试刷新实例列表",ctx.GetHeader("realip"))
 
@@ -80,6 +100,17 @@ type setEcsWeight struct {
 
 
 // 会设置服务器 所有负载均衡里的权重
+// SearchHost godoc
+// @Summary      设置所有包含该服务器的负载均衡里的权重
+// @Description  会设置服务器 所有负载均衡里的权重
+// @Tags         ecs
+// @Accept       json
+// @Produce      json
+// @Param   json  body     setEcsWeight   true  "hostname 必填 ；weight 为 0-100之间的数字 必填 "
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/ecs/search [post]
 func SetEcsSlbWeight(ctx iris.Context)  {
 	var data setEcsWeight
 	err := ctx.ReadJSON(&data)

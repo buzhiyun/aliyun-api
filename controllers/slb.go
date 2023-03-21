@@ -17,6 +17,17 @@ type AclListReq struct {
 }
 
 
+// SearchHost godoc
+// @Summary      添加主机到ACL
+// @Description  添加主机到ACL
+// @Tags         slb
+// @Accept       json
+// @Produce      json
+// @Param   json  body     AclListReq   true  "acl_id 是 slb accessList的ID ； host 和 ip不能同时为空 ，类型均为 []string"
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/slb/acl/add [post]
 func AddIpToACL(ctx iris.Context)  {
 	var data AclListReq
 	err := ctx.ReadJSON(&data)
@@ -53,6 +64,19 @@ func AddIpToACL(ctx iris.Context)  {
 
 }
 
+
+
+// SearchHost godoc
+// @Summary      从ACL移除主机
+// @Description  从ACL移除主机
+// @Tags         slb
+// @Accept       json
+// @Produce      json
+// @Param   json  body     AclListReq   true  "acl_id 是 slb accessList的ID ； host 和 ip不能同时为空 ，类型均为 []string"
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/slb/acl/delete [post]
 func DeleteIpFromACL(ctx iris.Context)  {
 	var data AclListReq
 	err := ctx.ReadJSON(&data)

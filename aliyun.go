@@ -4,10 +4,13 @@ import (
 	"flag"
 	"github.com/buzhiyun/aliyun-api/cdn"
 	"github.com/buzhiyun/aliyun-api/controllers"
+	_ "github.com/buzhiyun/aliyun-api/docs"
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/middleware"
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/go-utils/validator"
+	"github.com/iris-contrib/swagger/v12"
+	"github.com/iris-contrib/swagger/v12/swaggerFiles"
 	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"strconv"
@@ -19,6 +22,7 @@ type program struct{
 }
 
 // go-bindata -fs -nomemcopy -prefix "web/dist" ./web/dist/...
+// swag i -g aliyun.go
 
 func newApp() (app *iris.Application) {
 	app = iris.New()
@@ -26,7 +30,6 @@ func newApp() (app *iris.Application) {
 
 
 	app.Validator = validator.New()
-
 	// go get -u github.com/go-bindata/go-bindata/...
 	// 静态文件直接打包到程序里  先执行 go-bindata -fs -nomemcopy -prefix "web/dist" ./web/dist/...
 	// https://docs.iris-go.com/iris/file-server/http2push-embedded-compression
@@ -77,6 +80,24 @@ func newApp() (app *iris.Application) {
 		acl.Post("/add" , controllers.AddIpToACL)
 		acl.Post("/delete" , controllers.DeleteIpFromACL)
 	})
+
+	config := &swagger.Config{
+		URL: "/swagger/doc.json", //The url pointing to API definition
+	}
+
+
+
+	// swagger 配置
+	swaggerUI := swagger.CustomWrapHandler(config, swaggerFiles.Handler)
+	_swagger := app.Party("/swagger")
+
+	_swagger.Use(middleware.WhiteList)
+
+	// 把 /swagger 重定向到 /swagger/index.html
+	_swagger.Get("", func(ctx iris.Context) {
+		ctx.Redirect("/swagger/index.html",301)
+	})
+	_swagger.Get("/{any:path}",swaggerUI)
 
 	return
 }

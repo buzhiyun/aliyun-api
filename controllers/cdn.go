@@ -14,6 +14,17 @@ type RefreshCdnReq struct {
 }
 
 
+// SearchHost godoc
+// @Summary      刷新CDN
+// @Description  根据提供的URL去刷新CDN
+// @Tags         cdn
+// @Accept       json
+// @Produce      json
+// @Param   json  body     RefreshCdnReq   true  "urls 是 []string"
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/cdn/refresh [post]
 func RefreshCdnUrl(ctx iris.Context)  {
 	var data RefreshCdnReq
 	err := ctx.ReadJSON(&data)
