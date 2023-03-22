@@ -48,7 +48,7 @@ func AddIpToACL(ctx iris.Context)  {
 	if data.Host != nil {
 		for _, host := range *data.Host {
 			for _, instance := range ecs.SearchByName(host) {
-				ipList = append(ipList,instance.IntranetIp)
+				ipList = append(ipList,ecs.GetInstancesPrivateIP(instance))
 			}
 		}
 	}
@@ -97,7 +97,7 @@ func DeleteIpFromACL(ctx iris.Context)  {
 	if data.Host != nil {
 		for _, host := range *data.Host {
 			for _, instance := range ecs.SearchByName(host) {
-				ipList = append(ipList,instance.IntranetIp)
+				ipList = append(ipList,ecs.GetInstancesPrivateIP(instance))
 			}
 		}
 	}

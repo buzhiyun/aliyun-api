@@ -95,7 +95,7 @@ func RefreshHost(ctx iris.Context)  {
 
 type setEcsWeight struct {
 	Hostname string `json:"hostname"  validate:"required" err_info:"主机名称hostname不能为空"` // 主机名,支持通配符
-	Weight   int    `json:"weight"  validate:"required,gte=0,lte=100" err_info:"权重weight 必须是0-100之间的非空值"`       // 权重
+	Weight   *int    `json:"weight"  validate:"required,gte=0,lte=100" err_info:"权重weight 必须是0-100之间的非空值"`       // 权重  *int 防止0在json的时候被丢掉
 }
 
 
@@ -125,7 +125,7 @@ func SetEcsSlbWeight(ctx iris.Context)  {
 	var result []slb.EcsSetResult
 	var msg string
 	for _, server := range servers {
-		setResult ,err := slb.SetEcsWeight(server.InstanceId,data.Weight)
+		setResult ,err := slb.SetEcsWeight(server.InstanceId,*data.Weight)
 		if err != nil {
 			msg = err.Error()
 			continue
