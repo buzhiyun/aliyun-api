@@ -62,6 +62,7 @@ func RefreshUrl(urls []string) (response *cdn.RefreshObjectCachesResponse,err er
 	response, err = client().RefreshObjectCaches(request)
 	if err != nil {
 		golog.Errorf("刷新cdn失败 %s",err.Error())
+		return
 	}
 	golog.Infof("刷新cdn成功 %s", response.GetHttpContentString())
 
@@ -84,6 +85,7 @@ func PushObjectCache(urls []string) (response *cdn.PushObjectCacheResponse, err 
 	response, err = client().PushObjectCache(request)
 	if err != nil {
 		golog.Errorf("预热cdn失败 %s",err.Error())
+		return
 	}
 
 	golog.Infof("预热cdn成功 %s", response.GetHttpContentString())
