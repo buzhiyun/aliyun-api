@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/ecs"
+	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/kataras/golog"
 	"time"
@@ -74,6 +75,7 @@ func GetInstances() (res []ecs.Instance, err error) {
 
 		if err != nil {
 			golog.Error(err.Error())
+			msg.AliyunSdkAlert(err.Error())
 			return instances, err
 		}
 

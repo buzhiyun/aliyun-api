@@ -2,6 +2,7 @@ package slb
 
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/kataras/golog"
 	"strings"
 	"time"
@@ -45,6 +46,7 @@ func AddIpToAcl(AclId string,IP []string,comment... string) (err error) {
 	response, err := client().AddAccessControlListEntry(request)
 	if err != nil {
 		golog.Errorf("添加IP %v 到ACL %s 失败, %s", IP, AclId,err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return err
 	}
 
@@ -88,6 +90,7 @@ func RemoveIpFromAcl(AclId string,IP []string,comment... string) (err error)  {
 	response, err := client().RemoveAccessControlListEntry(request)
 	if err != nil {
 		golog.Errorf("从ACL %s 删除IP %v 失败, %s", AclId,IP, err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return err
 	}
 

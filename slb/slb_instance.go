@@ -6,6 +6,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/kataras/golog"
 	"time"
@@ -82,6 +83,7 @@ func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer ,err error) {
 
 		if err != nil {
 			golog.Errorf("根据ecsId %s 查找 slb失败, %s",ecsServerId , err.Error())
+			msg.AliyunSdkAlert(err.Error())
 			return slbs, err
 		}
 
@@ -117,6 +119,7 @@ func GetSlbBackendServer(slbId string) (bkServer []slb.BackendServerInDescribeLo
 	response, err := client().DescribeLoadBalancerAttribute(request)
 	if err != nil {
 		golog.Errorf("获取slb %s 后端服务器失败, %s" ,slbId,err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return bkServer,err
 	}
 
@@ -142,6 +145,7 @@ func GetSlbVserverGroup(slbId string) (vServerGroups []slb.VServerGroup,err erro
 	response, err := client().DescribeVServerGroups(request)
 	if err != nil {
 		golog.Errorf("获取slb %s 的虚拟服务器组失败, %s",slbId,err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return vServerGroups,err
 	}
 
@@ -166,6 +170,7 @@ func GetSlbVserverGroupBackendServer(vServerGroupId string) (bkServer []slb.Back
 	response, err := client().DescribeVServerGroupAttribute(request)
 	if err != nil {
 		golog.Errorf("获取slb虚拟服务器 %s 组详情失败, %s",vServerGroupId,err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return bkServer,err
 	}
 
@@ -198,6 +203,7 @@ func SetSlbBackendServer(slbId string,backendServers []backendServer) (err error
 	response, err := client().SetBackendServers(request)
 	if err != nil {
 		golog.Errorf("设置权重 %s 权重失败, %s" ,slbId, err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return
 	}
 
@@ -239,6 +245,7 @@ func SetSlbVserverGroup(vGroupId string,backendServers []backendServer) (err err
 	response, err := client().SetVServerGroupAttribute(request)
 	if err != nil {
 		golog.Errorf("设置虚拟服务器组权重 %s 权重失败, %s" ,vGroupId, err.Error())
+		msg.AliyunSdkAlert(err.Error())
 		return
 	}
 
