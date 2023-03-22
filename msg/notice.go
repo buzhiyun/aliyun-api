@@ -16,7 +16,7 @@ func AliyunSdkAlert(errMsg string)  {
 	hostname , _ := os.Hostname()
 
 	sendWechatWorkAppMessage(
-		fmt.Sprintf("### 阿里云SDK异常\n> ERR: %s\nHostname: %s",errMsg,hostname),
+		fmt.Sprintf("### 阿里云SDK异常\n> **ERR**: <font color=\"comment\">%s</font>\n**Hostname**: %s",errMsg,hostname),
 		toUser)
 }
 
