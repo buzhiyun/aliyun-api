@@ -8,7 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
-	"github.com/kataras/golog"
+	"github.com/buzhiyun/go-utils/log"
 	"time"
 )
 
@@ -26,26 +26,26 @@ func client() *slb.Client {
 		return _client
 	}
 
-	regionId, aliyunKey, aliyunSecret ,_ := utils.GetAliyunKey()
+	regionId, aliyunKey, aliyunSecret, _ := utils.GetAliyunKey()
 
 	config := sdk.NewConfig()
 	// 是否开启重试机制
-	config.WithAutoRetry(true);
+	config.WithAutoRetry(true)
 	// 最大重试次数
-	config.WithMaxRetryTime(3);
+	config.WithMaxRetryTime(3)
 
 	credential := credentials.NewAccessKeyCredential(aliyunKey, aliyunSecret)
 	_c, err := slb.NewClientWithOptions(regionId, config, credential)
 
 	if err != nil {
-		golog.Errorf("初始化 slb client 失败, %s",err.Error())
+		log.Errorf("初始化 slb client 失败, %s", err.Error())
 		return nil
 	}
 	_client = _c
 	return _c
 }
 
-func InitSlb() (err error)  {
+func InitSlb() (err error) {
 	if client() == nil {
 		err = errors.New("初始化 slb client 失败")
 	}
@@ -53,13 +53,11 @@ func InitSlb() (err error)  {
 	return
 }
 
-
 // 查找所有有该ECS的slb
-func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer ,err error) {
+func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer, err error) {
 
-	
 	if err != nil {
-		golog.Errorf("初始化 slb client 失败, %s",err.Error())
+		log.Errorf("初始化 slb client 失败, %s", err.Error())
 		return
 	}
 
@@ -69,20 +67,19 @@ func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer ,err error) {
 	for pageNum <= maxPage {
 		request := slb.CreateDescribeLoadBalancersRequest()
 		// 连接超时设置，仅对当前请求有效。
-		request.SetConnectTimeout(5 * time.Second);
+		request.SetConnectTimeout(5 * time.Second)
 		// 读超时设置，仅对当前请求有效。
-		request.SetReadTimeout(60 * time.Second);
+		request.SetReadTimeout(60 * time.Second)
 
 		request.Scheme = "https"
 
 		request.ServerId = ecsServerId
 		request.PageSize = requests.NewInteger(100)
 
-
 		response, err := client().DescribeLoadBalancers(request)
 
 		if err != nil {
-			golog.Errorf("根据ecsId %s 查找 slb失败, %s",ecsServerId , err.Error())
+			log.Errorf("根据ecsId %s 查找 slb失败, %s", ecsServerId, err.Error())
 			msg.AliyunSdkAlert(err.Error())
 			return slbs, err
 		}
@@ -98,70 +95,65 @@ func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer ,err error) {
 
 	return
 
-
 }
 
-
 // 根据slb去找 后端服务器 【不是虚拟服务器组】
-func GetSlbBackendServer(slbId string) (bkServer []slb.BackendServerInDescribeLoadBalancerAttribute ,err error) {
+func GetSlbBackendServer(slbId string) (bkServer []slb.BackendServerInDescribeLoadBalancerAttribute, err error) {
 
 	request := slb.CreateDescribeLoadBalancerAttributeRequest()
 	// 连接超时设置，仅对当前请求有效。
-	request.SetConnectTimeout(5 * time.Second);
+	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
-	request.SetReadTimeout(60 * time.Second);
+	request.SetReadTimeout(60 * time.Second)
 
 	request.Scheme = "https"
 
 	request.LoadBalancerId = slbId
 
-
 	response, err := client().DescribeLoadBalancerAttribute(request)
 	if err != nil {
-		golog.Errorf("获取slb %s 后端服务器失败, %s" ,slbId,err.Error())
+		log.Errorf("获取slb %s 后端服务器失败, %s", slbId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
-		return bkServer,err
+		return bkServer, err
 	}
 
-	bkServer = append(bkServer,response.BackendServers.BackendServer...)
+	bkServer = append(bkServer, response.BackendServers.BackendServer...)
 
 	return
 
 }
 
 // 根据slb去找 虚拟服务器组
-func GetSlbVserverGroup(slbId string) (vServerGroups []slb.VServerGroup,err error) {
+func GetSlbVserverGroup(slbId string) (vServerGroups []slb.VServerGroup, err error) {
 
 	request := slb.CreateDescribeVServerGroupsRequest()
 	// 连接超时设置，仅对当前请求有效。
-	request.SetConnectTimeout(5 * time.Second);
+	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
-	request.SetReadTimeout(60 * time.Second);
+	request.SetReadTimeout(60 * time.Second)
 	request.Scheme = "https"
 
 	request.LoadBalancerId = slbId
 
-
 	response, err := client().DescribeVServerGroups(request)
 	if err != nil {
-		golog.Errorf("获取slb %s 的虚拟服务器组失败, %s",slbId,err.Error())
+		log.Errorf("获取slb %s 的虚拟服务器组失败, %s", slbId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
-		return vServerGroups,err
+		return vServerGroups, err
 	}
 
-	vServerGroups = append(vServerGroups,response.VServerGroups.VServerGroup...)
+	vServerGroups = append(vServerGroups, response.VServerGroups.VServerGroup...)
 	return
 }
 
 // 根据虚拟服务器组 去找 后端服务器
-func GetSlbVserverGroupBackendServer(vServerGroupId string) (bkServer []slb.BackendServerInDescribeVServerGroupAttribute ,err error) {
-
+func GetSlbVserverGroupBackendServer(vServerGroupId string) (bkServer []slb.BackendServerInDescribeVServerGroupAttribute, err error) {
 
 	request := slb.CreateDescribeVServerGroupAttributeRequest()
 	// 连接超时设置，仅对当前请求有效。
-	request.SetConnectTimeout(5 * time.Second);
+	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
-	request.SetReadTimeout(60 * time.Second);
+	request.SetReadTimeout(60 * time.Second)
 
 	request.Scheme = "https"
 
@@ -169,45 +161,43 @@ func GetSlbVserverGroupBackendServer(vServerGroupId string) (bkServer []slb.Back
 
 	response, err := client().DescribeVServerGroupAttribute(request)
 	if err != nil {
-		golog.Errorf("获取slb虚拟服务器 %s 组详情失败, %s",vServerGroupId,err.Error())
+		log.Errorf("获取slb虚拟服务器 %s 组详情失败, %s", vServerGroupId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
-		return bkServer,err
+		return bkServer, err
 	}
 
-	bkServer = append(bkServer,response.BackendServers.BackendServer...)
+	bkServer = append(bkServer, response.BackendServers.BackendServer...)
 	return
 }
 
-
 // 设置后端服务器
-func SetSlbBackendServer(slbId string,backendServers []backendServer) (err error) {
+func SetSlbBackendServer(slbId string, backendServers []backendServer) (err error) {
 
 	request := slb.CreateSetBackendServersRequest()
 	// 连接超时设置，仅对当前请求有效。
-	request.SetConnectTimeout(5 * time.Second);
+	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
-	request.SetReadTimeout(60 * time.Second);
+	request.SetReadTimeout(60 * time.Second)
 	request.Scheme = "https"
 
 	request.LoadBalancerId = slbId
 
-	bkserverJson ,err := json.MarshalToString(backendServers)
-	if err != nil{
-		golog.Errorf("解析backendServers数据失败 %#v 权重失败, %s" ,backendServers, err.Error())
+	bkserverJson, err := json.MarshalToString(backendServers)
+	if err != nil {
+		log.Errorf("解析backendServers数据失败 %#v 权重失败, %s", backendServers, err.Error())
 		return
 	}
-	golog.Debugf("bkserverJson: %s",bkserverJson)
+	log.Debugf("bkserverJson: %s", bkserverJson)
 	request.BackendServers = bkserverJson
-
 
 	response, err := client().SetBackendServers(request)
 	if err != nil {
-		golog.Errorf("设置权重 %s 权重失败, %s" ,slbId, err.Error())
+		log.Errorf("设置权重 %s 权重失败, %s", slbId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return
 	}
 
-	golog.Infof("设置 %s 权重 %s , %s", slbId,backendServers,response.GetHttpContentString() )
+	log.Infof("设置 %s 权重 %s , %s", slbId, backendServers, response.GetHttpContentString())
 
 	return
 }
@@ -222,33 +212,32 @@ type backendServer struct {
 }
 
 // 设置后端虚拟服务器组
-func SetSlbVserverGroup(vGroupId string,backendServers []backendServer) (err error)  {
+func SetSlbVserverGroup(vGroupId string, backendServers []backendServer) (err error) {
 	request := slb.CreateSetVServerGroupAttributeRequest()
 	// 连接超时设置，仅对当前请求有效。
-	request.SetConnectTimeout(5 * time.Second);
+	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
-	request.SetReadTimeout(60 * time.Second);
+	request.SetReadTimeout(60 * time.Second)
 
 	request.Scheme = "https"
 
-	bkserverJson ,err := json.MarshalToString(backendServers)
-	golog.Debugf("bkserverJson: %s",bkserverJson)
+	bkserverJson, err := json.MarshalToString(backendServers)
+	log.Debugf("bkserverJson: %s", bkserverJson)
 
-	if err != nil{
-		golog.Errorf("解析backendServers数据失败 %#v 权重失败, %s" ,backendServers, err.Error())
+	if err != nil {
+		log.Errorf("解析backendServers数据失败 %#v 权重失败, %s", backendServers, err.Error())
 		return
 	}
 	request.BackendServers = bkserverJson
 	request.VServerGroupId = vGroupId
 
-
 	response, err := client().SetVServerGroupAttribute(request)
 	if err != nil {
-		golog.Errorf("设置虚拟服务器组权重 %s 权重失败, %s" ,vGroupId, err.Error())
+		log.Errorf("设置虚拟服务器组权重 %s 权重失败, %s", vGroupId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return
 	}
 
-	golog.Infof("设置虚拟服务器组 %s 权重 %s \n%s", vGroupId,backendServers,response.GetHttpContentString() )
+	log.Infof("设置虚拟服务器组 %s 权重 %s \n%s", vGroupId, backendServers, response.GetHttpContentString())
 	return
 }

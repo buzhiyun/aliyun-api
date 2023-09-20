@@ -1,4 +1,19 @@
 definitions:
+  cms.Datapoint:
+    properties:
+      Average:
+        type: number
+      Maximum:
+        type: number
+      Minimum:
+        type: number
+      instanceId:
+        type: string
+      timestamp:
+        type: integer
+      userId:
+        type: string
+    type: object
   controllers.AclListReq:
     properties:
       acl_id:
@@ -26,6 +41,23 @@ definitions:
     required:
     - urls
     type: object
+  controllers.getDataPointReq:
+    properties:
+      hostName:
+        description: 主机名,支持通配符
+        example:
+        - sdcf_v3_030
+        items:
+          type: string
+        type: array
+      instanceId:
+        description: 主机Id
+        example:
+        - i-bp1d1oh9a06r70buf03l
+        items:
+          type: string
+        type: array
+    type: object
   controllers.searchHostReq:
     properties:
       hostname:
@@ -41,7 +73,7 @@ definitions:
         description: 主机名,支持通配符
         type: string
       weight:
-        description: 权重
+        description: 权重  *int 防止0在json的时候被丢掉
         maximum: 100
         minimum: 0
         type: integer
@@ -90,6 +122,43 @@ paths:
       summary: 刷新CDN
       tags:
       - cdn
+  /api/cms/ecs/cpu:
+    post:
+      consumes:
+      - application/json
+      description: 根据ECS  获取CPU使用率
+      parameters:
+      - description: hostName 是 []string
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.getDataPointReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ApiJson'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/cms.Datapoint'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+      summary: 获取ECS CPU信息
+      tags:
+      - 监控CMS
   /api/ecs/refresh:
     post:
       consumes:

@@ -4,18 +4,17 @@ import (
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/aliyun-api/utils"
-	"github.com/kataras/golog"
+	"github.com/buzhiyun/go-utils/log"
 	"github.com/kataras/iris/v12"
 	"strings"
 )
 
 type AclListReq struct {
-	AclId	string		`json:"acl_id" validate:"required" err_info:"acl_id 不能为空"`
-	Host	*[]string	`json:"host,omitempty" validate:"required_without=IP" err_info:"ip 或者 host 不能为空"`
-	IP		*[]string	`json:"ip,omitempty" `
-	Comment	string		`json:"comment,omitempty"`
+	AclId   string    `json:"acl_id" validate:"required" err_info:"acl_id 不能为空"`
+	Host    *[]string `json:"host,omitempty" validate:"required_without=IP" err_info:"ip 或者 host 不能为空"`
+	IP      *[]string `json:"ip,omitempty" `
+	Comment string    `json:"comment,omitempty"`
 }
-
 
 // SearchHost godoc
 // @Summary      添加主机到ACL
@@ -28,11 +27,11 @@ type AclListReq struct {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/slb/acl/add [post]
-func AddIpToACL(ctx iris.Context)  {
+func AddIpToACL(ctx iris.Context) {
 	var data AclListReq
 	err := ctx.ReadJSON(&data)
 	if err != nil {
-		badRequest(ctx,err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 
@@ -40,7 +39,7 @@ func AddIpToACL(ctx iris.Context)  {
 
 	// 加IP
 	if data.IP != nil {
-		ipList = append(ipList,*data.IP...)
+		ipList = append(ipList, *data.IP...)
 		return
 	}
 
@@ -48,23 +47,21 @@ func AddIpToACL(ctx iris.Context)  {
 	if data.Host != nil {
 		for _, host := range *data.Host {
 			for _, instance := range ecs.SearchByName(host) {
-				ipList = append(ipList,ecs.GetInstancesPrivateIP(instance))
+				ipList = append(ipList, ecs.GetInstancesPrivateIP(instance))
 			}
 		}
 	}
 
-	golog.Infof("[slb] %s 尝试添加 %s 到 ACL %s",ctx.GetHeader("realip"),strings.Join(ipList,","),data.AclId)
-	err = slb.AddIpToAcl(data.AclId,ipList,data.Comment)
+	log.Infof("[slb] %s 尝试添加 %s 到 ACL %s", ctx.GetHeader("realip"), strings.Join(ipList, ","), data.AclId)
+	err = slb.AddIpToAcl(data.AclId, ipList, data.Comment)
 	if err != nil {
-		internalServerError(ctx,err.Error())
+		internalServerError(ctx, err.Error())
 		return
 	}
 
 	ctx.JSON(utils.ApiResource(200, nil, "ok"))
 
 }
-
-
 
 // SearchHost godoc
 // @Summary      从ACL移除主机
@@ -77,11 +74,11 @@ func AddIpToACL(ctx iris.Context)  {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/slb/acl/delete [post]
-func DeleteIpFromACL(ctx iris.Context)  {
+func DeleteIpFromACL(ctx iris.Context) {
 	var data AclListReq
 	err := ctx.ReadJSON(&data)
 	if err != nil {
-		badRequest(ctx,err.Error())
+		badRequest(ctx, err.Error())
 		return
 	}
 
@@ -89,7 +86,7 @@ func DeleteIpFromACL(ctx iris.Context)  {
 
 	// 加IP
 	if data.IP != nil {
-		ipList = append(ipList,*data.IP...)
+		ipList = append(ipList, *data.IP...)
 		return
 	}
 
@@ -97,15 +94,15 @@ func DeleteIpFromACL(ctx iris.Context)  {
 	if data.Host != nil {
 		for _, host := range *data.Host {
 			for _, instance := range ecs.SearchByName(host) {
-				ipList = append(ipList,ecs.GetInstancesPrivateIP(instance))
+				ipList = append(ipList, ecs.GetInstancesPrivateIP(instance))
 			}
 		}
 	}
 
-	golog.Infof("[slb] %s 尝试将 %s 从 ACL %s 中删除",ctx.GetHeader("realip"),strings.Join(ipList,","),data.AclId)
-	err = slb.RemoveIpFromAcl(data.AclId,ipList)
+	log.Infof("[slb] %s 尝试将 %s 从 ACL %s 中删除", ctx.GetHeader("realip"), strings.Join(ipList, ","), data.AclId)
+	err = slb.RemoveIpFromAcl(data.AclId, ipList)
 	if err != nil {
-		internalServerError(ctx,err.Error())
+		internalServerError(ctx, err.Error())
 		return
 	}
 

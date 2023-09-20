@@ -8,10 +8,9 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/cdn"
 	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
-	"github.com/kataras/golog"
+	"github.com/buzhiyun/go-utils/log"
 	"strings"
 )
-
 
 var _client *cdn.Client
 
@@ -20,27 +19,26 @@ func client() *cdn.Client {
 		return _client
 	}
 
-	regionId, aliyunKey, aliyunSecret ,_ := utils.GetAliyunKey()
+	regionId, aliyunKey, aliyunSecret, _ := utils.GetAliyunKey()
 
 	config := sdk.NewConfig()
 	// 是否开启重试机制
-	config.WithAutoRetry(true);
+	config.WithAutoRetry(true)
 	// 最大重试次数
-	config.WithMaxRetryTime(3);
+	config.WithMaxRetryTime(3)
 
 	credential := credentials.NewAccessKeyCredential(aliyunKey, aliyunSecret)
 	_c, err := cdn.NewClientWithOptions(regionId, config, credential)
 
 	if err != nil {
-		golog.Errorf("初始化 cdn client 失败, %s",err.Error())
+		log.Errorf("初始化 cdn client 失败, %s", err.Error())
 		return nil
 	}
 	_client = _c
 	return _c
 }
 
-
-func InitCDN() (err error)  {
+func InitCDN() (err error) {
 	if client() == nil {
 		err = errors.New("初始化 cdn client 失败")
 	}
@@ -48,29 +46,25 @@ func InitCDN() (err error)  {
 	return
 }
 
-
-
 // 刷新CDN缓存
-func RefreshUrl(urls []string) (response *cdn.RefreshObjectCachesResponse,err error) {
-
+func RefreshUrl(urls []string) (response *cdn.RefreshObjectCachesResponse, err error) {
 
 	request := cdn.CreateRefreshObjectCachesRequest()
 
 	request.Scheme = "https"
 
-	request.ObjectPath = strings.Join(urls,"\n")
+	request.ObjectPath = strings.Join(urls, "\n")
 
 	response, err = client().RefreshObjectCaches(request)
 	if err != nil {
-		golog.Errorf("刷新cdn失败 %s",err.Error())
+		log.Errorf("刷新cdn失败 %s", err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return
 	}
-	golog.Infof("刷新cdn成功 %s", response.GetHttpContentString())
+	log.Infof("刷新cdn成功 %s", response.GetHttpContentString())
 
 	return
 }
-
 
 // 预热cdn
 func PushObjectCache(urls []string) (response *cdn.PushObjectCacheResponse, err error) {
@@ -81,17 +75,16 @@ func PushObjectCache(urls []string) (response *cdn.PushObjectCacheResponse, err 
 
 	request.Area = "domestic"
 	request.L2Preload = requests.NewBoolean(true)
-	request.ObjectPath = strings.Join(urls,"\n")
-
+	request.ObjectPath = strings.Join(urls, "\n")
 
 	response, err = client().PushObjectCache(request)
 	if err != nil {
-		golog.Errorf("预热cdn失败 %s",err.Error())
+		log.Errorf("预热cdn失败 %s", err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return
 	}
 
-	golog.Infof("预热cdn成功 %s", response.GetHttpContentString())
+	log.Infof("预热cdn成功 %s", response.GetHttpContentString())
 
 	return
 

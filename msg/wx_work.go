@@ -3,7 +3,7 @@ package msg
 import (
 	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/http"
-	"github.com/kataras/golog"
+	"github.com/buzhiyun/go-utils/log"
 	"strings"
 )
 
@@ -14,14 +14,14 @@ https://work.weixin.qq.com/api/doc/90000/90135/90236#markdown%E6%B6%88%E6%81%AF
 */
 func sendWechatWorkAppMessage(markdownContent string, toUsers []string) (err error) {
 
-	msgApi ,ok := cfg.Config().GetString("notice.msg_api")
+	msgApi, ok := cfg.Config().GetString("notice.msg_api")
 	if !ok || msgApi == "" {
 
-		golog.Warnf("获取配置 msg_api 异常")
+		log.Warnf("获取配置 msg_api 异常")
 		return
 	}
 
-	golog.Infof("向 %v 发送企业微信应用消息", toUsers)
+	log.Infof("向 %v 发送企业微信应用消息", toUsers)
 
 	if len(toUsers) == 0 {
 		toUsers = []string{"177"}
@@ -35,12 +35,11 @@ func sendWechatWorkAppMessage(markdownContent string, toUsers []string) (err err
 		Content: markdownContent,
 	}
 
-
 	resp, err := http.HttpPostJson(msgApi+"/api/wechatwork/msg/markdown", data)
 	if err != nil {
-		golog.Errorf("发送企业微信应用消息错误: %s", err.Error())
+		log.Errorf("发送企业微信应用消息错误: %s", err.Error())
 	} else {
-		golog.Infof("发送企业微信应用消息返回: %s", resp)
+		log.Infof("发送企业微信应用消息返回: %s", resp)
 	}
 	return
 }

@@ -8,17 +8,17 @@ import (
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/middleware"
 	"github.com/buzhiyun/aliyun-api/slb"
+	"github.com/buzhiyun/go-utils/log"
 	"github.com/buzhiyun/go-utils/validator"
 	"github.com/iris-contrib/swagger/v12"
 	"github.com/iris-contrib/swagger/v12/swaggerFiles"
-	"github.com/kataras/golog"
 	"github.com/kataras/iris/v12"
 	"strconv"
 	"time"
 )
 
-type program struct{
-	port	int
+type program struct {
+	port int
 }
 
 // go-bindata -fs -nomemcopy -prefix "web/dist" ./web/dist/...
@@ -27,7 +27,6 @@ type program struct{
 func newApp() (app *iris.Application) {
 	app = iris.New()
 	// OR: basicauth.Default(users)
-
 
 	app.Validator = validator.New()
 	// go get -u github.com/go-bindata/go-bindata/...
@@ -56,10 +55,8 @@ func newApp() (app *iris.Application) {
 	//	AllowCredentials: true,
 	//})
 
-
 	//api := app.Party("/api", Cors).AllowMethods(iris.MethodOptions)
 	api := app.Party("/api")
-
 
 	// ip白名单
 	api.Use(middleware.WhiteList)
@@ -71,21 +68,24 @@ func newApp() (app *iris.Application) {
 	})
 
 	api.PartyFunc("/cdn", func(server iris.Party) {
-		server.Post("/refresh",controllers.RefreshCdnUrl)
+		server.Post("/refresh", controllers.RefreshCdnUrl)
 	})
 
 	slb := api.Party("/slb")
 
-	slb.PartyFunc("/acl" , func(acl iris.Party) {
-		acl.Post("/add" , controllers.AddIpToACL)
-		acl.Post("/delete" , controllers.DeleteIpFromACL)
+	slb.PartyFunc("/acl", func(acl iris.Party) {
+		acl.Post("/add", controllers.AddIpToACL)
+		acl.Post("/delete", controllers.DeleteIpFromACL)
+	})
+
+	cms := api.Party("/cms")
+	cms.PartyFunc("/ecs", func(ecs iris.Party) {
+		ecs.Post("/cpu", controllers.GetEcsCpu)
 	})
 
 	config := &swagger.Config{
 		URL: "/swagger/doc.json", //The url pointing to API definition
 	}
-
-
 
 	// swagger 配置
 	swaggerUI := swagger.CustomWrapHandler(config, swaggerFiles.Handler)
@@ -95,9 +95,9 @@ func newApp() (app *iris.Application) {
 
 	// 把 /swagger 重定向到 /swagger/index.html
 	_swagger.Get("", func(ctx iris.Context) {
-		ctx.Redirect("/swagger/index.html",301)
+		ctx.Redirect("/swagger/index.html", 301)
 	})
-	_swagger.Get("/{any:path}",swaggerUI)
+	_swagger.Get("/{any:path}", swaggerUI)
 
 	return
 }
@@ -107,7 +107,7 @@ func (p *program) run() {
 	app.Run(iris.Addr("0.0.0.0:" + strconv.Itoa(p.port)))
 }
 
-func autoRefreshEcs()  {
+func autoRefreshEcs() {
 	for {
 		ecs.UpdateEcs()
 		time.Sleep(300 * time.Second)
@@ -115,33 +115,30 @@ func autoRefreshEcs()  {
 }
 
 func main() {
-	golog.SetTimeFormat("2006-01-02 15:04:05.000")
-
 	//if loglevel , ok := cfg.Config().GetString("loglevel") ;ok && loglevel == "debug" {
-	//	golog.SetLevel("debug")
+	//	log.SetLevel("debug")
 	//}
-	debug:= flag.Bool("debug",false,"是否开启debug日志")
-	port := flag.Int("p",8080,"启动端口")
+	debug := flag.Bool("debug", false, "是否开启debug日志")
+	port := flag.Int("p", 8080, "启动端口")
 	flag.Parse()
 
 	if *debug {
-		golog.SetLevel("debug")
+		log.SetLevel("debug")
 	}
 
-	if err := ecs.InitECS() ;err !=nil {
-		golog.Fatal(err.Error())
+	if err := ecs.InitECS(); err != nil {
+		log.Fatal(err.Error())
 	}
-	if err := cdn.InitCDN();err !=nil {
-		golog.Fatal(err.Error())
+	if err := cdn.InitCDN(); err != nil {
+		log.Fatal(err.Error())
 	}
-	if err := slb.InitSlb() ;err !=nil {
-		golog.Fatal(err.Error())
+	if err := slb.InitSlb(); err != nil {
+		log.Fatal(err.Error())
 	}
 
 	s := program{*port}
 
 	go autoRefreshEcs()
-
 
 	s.run()
 }

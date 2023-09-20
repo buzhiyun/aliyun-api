@@ -50,6 +50,67 @@
                 }
             }
         },
+        "/api/cms/ecs/cpu": {
+            "post": {
+                "description": "根据ECS  获取CPU使用率",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控CMS"
+                ],
+                "summary": "获取ECS CPU信息",
+                "parameters": [
+                    {
+                        "description": "hostName 是 []string",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.getDataPointReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.ApiJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/cms.Datapoint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
         "/api/ecs/refresh": {
             "post": {
                 "description": "刷新ecs实例列表",
@@ -225,6 +286,29 @@
         }
     },
     "definitions": {
+        "cms.Datapoint": {
+            "type": "object",
+            "properties": {
+                "Average": {
+                    "type": "number"
+                },
+                "Maximum": {
+                    "type": "number"
+                },
+                "Minimum": {
+                    "type": "number"
+                },
+                "instanceId": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "integer"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.AclListReq": {
             "type": "object",
             "required": [
@@ -266,6 +350,31 @@
                 }
             }
         },
+        "controllers.getDataPointReq": {
+            "type": "object",
+            "properties": {
+                "hostName": {
+                    "description": "主机名,支持通配符",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "sdcf_v3_030"
+                    ]
+                },
+                "instanceId": {
+                    "description": "主机Id",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "i-bp1d1oh9a06r70buf03l"
+                    ]
+                }
+            }
+        },
         "controllers.searchHostReq": {
             "type": "object",
             "properties": {
@@ -291,7 +400,7 @@
                     "type": "string"
                 },
                 "weight": {
-                    "description": "权重",
+                    "description": "权重  *int 防止0在json的时候被丢掉",
                     "type": "integer",
                     "maximum": 100,
                     "minimum": 0
