@@ -37,9 +37,7 @@ func GetEcsCpu(ctx iris.Context) {
 	instanceIds := data.InstanceId
 
 	for _, hostname := range data.HostName {
-		log.Infof("hostname: %s", hostname)
 		for _, instance := range ecs.SearchByName(hostname) {
-			log.Infof("hostname id: %s", instance.InstanceId)
 			instanceIds = append(instanceIds, instance.InstanceId)
 		}
 	}
