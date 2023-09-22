@@ -10,7 +10,7 @@ import (
 
 type getDataPointReq struct {
 	InstanceId []string `json:"instanceId" example:"i-bp1d1oh9a06r70buf03l"` // 主机Id
-	HostName   []string `json:"hostName" example:"sdcf_v3_030" `             // 主机名,支持通配符
+	HostName   []string `json:"hostname" example:"sdcf_v3_030" `             // 主机名,支持通配符
 }
 
 // SearchHost godoc
