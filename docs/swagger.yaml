@@ -43,7 +43,7 @@ definitions:
     type: object
   controllers.getDataPointReq:
     properties:
-      hostName:
+      hostname:
         description: 主机名,支持通配符
         example:
         - sdcf_v3_030
@@ -157,6 +157,117 @@ paths:
           schema:
             $ref: '#/definitions/utils.ApiJson'
       summary: 获取ECS CPU信息
+      tags:
+      - 监控CMS
+  /api/cms/ecs/gpu_gpu:
+    post:
+      consumes:
+      - application/json
+      description: 根据ECS  获取显卡GPU使用率
+      parameters:
+      - description: hostName 是 []string
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.getDataPointReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ApiJson'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/cms.Datapoint'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+      summary: 获取ECS 显卡信息
+      tags:
+      - 监控CMS
+  /api/cms/ecs/gpu_mem:
+    post:
+      consumes:
+      - application/json
+      description: 根据ECS  获取显卡显存使用率
+      parameters:
+      - description: hostName 是 []string
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.getDataPointReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ApiJson'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/cms.Datapoint'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+      summary: 获取ECS 显卡信息
+      tags:
+      - 监控CMS
+  /api/cms/ecs/mem:
+    post:
+      consumes:
+      - application/json
+      description: 根据ECS  获取内存使用率
+      parameters:
+      - description: hostName 是 []string
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.getDataPointReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.ApiJson'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/cms.Datapoint'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+      summary: 获取ECS 内存信息
       tags:
       - 监控CMS
   /api/ecs/refresh:

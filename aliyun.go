@@ -8,6 +8,7 @@ import (
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/middleware"
 	"github.com/buzhiyun/aliyun-api/slb"
+	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/log"
 	"github.com/buzhiyun/go-utils/validator"
 	"github.com/iris-contrib/swagger/v12"
@@ -81,6 +82,9 @@ func newApp() (app *iris.Application) {
 	cms := api.Party("/cms")
 	cms.PartyFunc("/ecs", func(ecs iris.Party) {
 		ecs.Post("/cpu", controllers.GetEcsCpu)
+		ecs.Post("/mem", controllers.GetEcsMem)
+		ecs.Post("/gpu_gpu", controllers.GetEcsGpuGpu)
+		ecs.Post("/gpu_mem", controllers.GetEcsGpuMem)
 	})
 
 	config := &swagger.Config{
@@ -115,15 +119,17 @@ func autoRefreshEcs() {
 }
 
 func main() {
-	//if loglevel , ok := cfg.Config().GetString("loglevel") ;ok && loglevel == "debug" {
-	//	log.SetLevel("debug")
-	//}
+	if loglevel, ok := cfg.Config().GetString("loglevel"); ok && loglevel == "debug" {
+		log.Info("设置日志级别为debug")
+		log.SetLevel("debug")
+	}
 	debug := flag.Bool("debug", false, "是否开启debug日志")
 	port := flag.Int("p", 8080, "启动端口")
 	flag.Parse()
 
 	if *debug {
 		log.SetLevel("debug")
+		log.Info("设置日志级别为debug")
 	}
 
 	if err := ecs.InitECS(); err != nil {

@@ -21,7 +21,12 @@ type Datapoint struct {
 	Average    float64 `json:"Average"`
 }
 
-func (c *aliyunCms) GetEcsCpu(instanceIds []string) (datapoints []Datapoint, err error) {
+/*
+*
+
+	metricName 详见 https://cms.console.aliyun.com/metric-meta/acs_ecs_dashboard/ecs
+*/
+func (c *aliyunCms) GetEcsMetrics(instanceIds []string, metricName string) (datapoints []Datapoint, err error) {
 	var dimensions []reqInstance
 
 	for _, instanceId := range instanceIds {
@@ -39,7 +44,8 @@ func (c *aliyunCms) GetEcsCpu(instanceIds []string) (datapoints []Datapoint, err
 	request.Scheme = "https"
 
 	request.Namespace = "acs_ecs_dashboard"
-	request.MetricName = "CPUUtilization"
+	//request.MetricName = "CPUUtilization"
+	request.MetricName = metricName
 	//request.Dimensions = "[{\"instanceId\":\"i-bp1d1oh9a06r70buf03h\"}]"
 	request.Dimensions = dimensionsStr
 

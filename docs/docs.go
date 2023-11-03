@@ -122,6 +122,189 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/cms/ecs/gpu_gpu": {
+            "post": {
+                "description": "根据ECS  获取显卡GPU使用率",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控CMS"
+                ],
+                "summary": "获取ECS 显卡信息",
+                "parameters": [
+                    {
+                        "description": "hostName 是 []string",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.getDataPointReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.ApiJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/cms.Datapoint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cms/ecs/gpu_mem": {
+            "post": {
+                "description": "根据ECS  获取显卡显存使用率",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控CMS"
+                ],
+                "summary": "获取ECS 显卡信息",
+                "parameters": [
+                    {
+                        "description": "hostName 是 []string",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.getDataPointReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.ApiJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/cms.Datapoint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cms/ecs/mem": {
+            "post": {
+                "description": "根据ECS  获取内存使用率",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控CMS"
+                ],
+                "summary": "获取ECS 内存信息",
+                "parameters": [
+                    {
+                        "description": "hostName 是 []string",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.getDataPointReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.ApiJson"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/cms.Datapoint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
         "/api/ecs/refresh": {
             "post": {
                 "description": "刷新ecs实例列表",
@@ -364,7 +547,7 @@ const docTemplate = `{
         "controllers.getDataPointReq": {
             "type": "object",
             "properties": {
-                "hostName": {
+                "hostname": {
                     "description": "主机名,支持通配符",
                     "type": "array",
                     "items": {
