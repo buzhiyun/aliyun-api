@@ -100,7 +100,7 @@ type setEcsWeight struct {
 // @Success      200  {object}   utils.ApiJson
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
-// @Router       /api/ecs/search [post]
+// @Router       /api/ecs/weight [post]
 func SetEcsSlbWeight(ctx iris.Context) {
 	var data setEcsWeight
 	err := ctx.ReadJSON(&data)

@@ -342,6 +342,52 @@ const docTemplate = `{
         },
         "/api/ecs/search": {
             "post": {
+                "description": "获取主机列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ecs"
+                ],
+                "summary": "搜索主机，支持通配符*",
+                "parameters": [
+                    {
+                        "description": "hostname 和 ip 不能同时为空",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.searchHostReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ecs/weight": {
+            "post": {
                 "description": "会设置服务器 所有负载均衡里的权重",
                 "consumes": [
                     "application/json"
