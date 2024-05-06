@@ -12,7 +12,12 @@
     region: "cn-hangzhou"
     key: "xxxxxxxxxxxxxxx"
     secret: "xxxxxxxxxxxxxxxxxxxxxxxxx"
-  
+
+  slb:
+    whitelist:  # 设置权重时候跳过的白名单
+      vgroup:
+        - 'rsp-xxxxxxxxxx'
+
   security:
     whitelist:  # 白名单列表 list ，ip支持通配符* ，白名单内的ip可以访问，以后有时间了再改成其他的访问控制
       - "192.168.8.*"
