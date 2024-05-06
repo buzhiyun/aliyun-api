@@ -3,6 +3,7 @@ module github.com/buzhiyun/aliyun-api
 go 1.18
 
 require (
+	//github.com/aliyun/alibaba-cloud-sdk-go v1.62.730
 	github.com/aliyun/alibaba-cloud-sdk-go v1.62.204
 	github.com/buzhiyun/go-utils v0.2.2
 	github.com/iris-contrib/swagger/v12 v12.0.1
@@ -10,6 +11,10 @@ require (
 	github.com/kataras/iris/v12 v12.2.0-beta7
 	github.com/swaggo/swag v1.16.2
 )
+
+//replace (
+//	github.com/iris-contrib/swagger/v12 v12.0.1 => ./swagger
+//)
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
@@ -33,7 +38,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/css v1.0.0 // indirect
 	github.com/iris-contrib/schema v0.0.6 // indirect
-	github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/kataras/blocks v0.0.7 // indirect
 	github.com/kataras/golog v0.1.8 // indirect

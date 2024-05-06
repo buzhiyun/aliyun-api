@@ -1,6 +1,7 @@
 package slb
 
 import (
+	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/log"
 	jsoniter "github.com/json-iterator/go"
 	"strconv"
@@ -11,7 +12,23 @@ const (
 	VgroupBackServer
 )
 
-var json = jsoniter.ConfigCompatibleWithStandardLibrary
+var (
+	json        = jsoniter.ConfigCompatibleWithStandardLibrary
+	vgroupWhite = getVgroupWhite() // vgroup 白名单
+)
+
+func getVgroupWhite() map[string]bool {
+	vgWhiteList, ok := cfg.Config().GetStrings("slb.whitelist.vgroup")
+	if !ok {
+		log.Fatal("获取配置 slb.whitelist.vgroup 异常")
+		return nil
+	}
+	var whiteMap = make(map[string]bool)
+	for _, s := range vgWhiteList {
+		whiteMap[s] = true
+	}
+	return whiteMap
+}
 
 type EcsSetResult struct {
 	ServerId  string
@@ -86,6 +103,10 @@ func SetEcsWeight(serverId string, weight int) (result []EcsSetResult, err error
 		}
 
 		for _, vGroup := range vGroups {
+			if _, ok := vgroupWhite[vGroup.VServerGroupId]; ok {
+				continue
+			} // 如果在白名单则直接跳过
+
 			vBkServers, err := GetSlbVserverGroupBackendServer(vGroup.VServerGroupId)
 			if err != nil {
 				return result, err

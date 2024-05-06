@@ -8,7 +8,8 @@ WORKDIR /app
 
 
 RUN  sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repositories && \
-     go mod vendor && go build -ldflags '-s -w' -o aliyun-api aliyun.go
+     go mod vendor && sed -i '/https:\/\/fonts.googleapis.com/d' vendor/github.com/iris-contrib/swagger/v12/swagger.go && \
+     go build -ldflags '-s -w' -o aliyun-api aliyun.go
 
 
 
