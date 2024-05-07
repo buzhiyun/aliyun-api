@@ -313,7 +313,7 @@ func SetSlbVserverGroup(vGroupId string, backendServers []backendServer) (err er
 	log.Debugf("bkserverJson: %s", bkserverJson)
 
 	if err != nil {
-		log.Errorf("[slb] 解析backendServers数据失败 %#v 权重失败, %s", backendServers, err.Error())
+		log.Errorf("[slb] 序列化backendServers数据失败 %#v 权重失败, %s", backendServers, err.Error())
 		return
 	}
 	request.QueryParams["BackendServers"] = bkserverJson
@@ -322,7 +322,7 @@ func SetSlbVserverGroup(vGroupId string, backendServers []backendServer) (err er
 	response, err := utils.AliyunClient.ProcessCommonRequest(request)
 
 	if err != nil {
-		log.Errorf("[slb] 设置虚拟服务器组权重 %s 权重失败, %s", vGroupId, err.Error())
+		log.Errorf("[slb] 设置虚拟服务器组权重 %s 权重 %s 失败, %s", vGroupId, bkserverJson, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return
 	}
