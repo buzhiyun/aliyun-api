@@ -139,8 +139,10 @@ type VServerGroup struct {
 }
 
 type DescribeVServerGroupsResponse struct {
-	RequestId     string         `json:"RequestId"`
-	VServerGroups []VServerGroup `json:"VServerGroups"`
+	RequestId     string `json:"RequestId"`
+	VServerGroups struct {
+		VServerGroup []VServerGroup `json:"VServerGroup"`
+	} `json:"VServerGroups"`
 }
 
 // 根据slb去找 虚拟服务器组
@@ -177,7 +179,7 @@ func GetSlbVserverGroup(slbId string) (vServerGroups []VServerGroup, err error) 
 		log.Errorf("[slb] 解析json 返回异常 , %s, %s", err.Error(), response.GetHttpContentString())
 	}
 
-	vServerGroups = append(vServerGroups, resp.VServerGroups...)
+	vServerGroups = append(vServerGroups, resp.VServerGroups.VServerGroup...)
 	return
 }
 
@@ -325,6 +327,6 @@ func SetSlbVserverGroup(vGroupId string, backendServers []backendServer) (err er
 		return
 	}
 
-	log.Infof("[slb] 设置虚拟服务器组 %s 权重 %s \n%s", vGroupId, backendServers, response.GetHttpContentString())
+	log.Infof("[slb] 设置虚拟服务器组 %s 权重 %s \n%s", vGroupId, bkserverJson, response.GetHttpContentString())
 	return
 }
