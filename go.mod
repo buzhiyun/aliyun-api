@@ -3,8 +3,8 @@ module github.com/buzhiyun/aliyun-api
 go 1.18
 
 require (
-	//github.com/aliyun/alibaba-cloud-sdk-go v1.62.730
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.204
+	github.com/aliyun/alibaba-cloud-sdk-go v1.62.730   // 现在的sdk 很多接口没了，都变成 CommonRequest，sb阿里坑一笔
+	//github.com/aliyun/alibaba-cloud-sdk-go v1.62.204  // 之前的sdk
 	github.com/buzhiyun/go-utils v0.2.2
 	github.com/iris-contrib/swagger/v12 v12.0.1
 	github.com/json-iterator/go v1.1.12

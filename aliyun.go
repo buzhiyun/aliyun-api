@@ -7,7 +7,6 @@ import (
 	_ "github.com/buzhiyun/aliyun-api/docs"
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/middleware"
-	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/log"
 	"github.com/buzhiyun/go-utils/validator"
@@ -119,10 +118,17 @@ func autoRefreshEcs() {
 }
 
 func main() {
-	if loglevel, ok := cfg.Config().GetString("loglevel"); ok && loglevel == "debug" {
+
+	if logcolor, ok := cfg.Config().GetString("log.color"); ok && logcolor == "false" {
+		log.Info("关闭日志颜色")
+		log.DisableColor()
+	}
+
+	if loglevel, ok := cfg.Config().GetString("log.level"); ok && loglevel == "debug" {
 		log.Info("设置日志级别为debug")
 		log.SetLevel("debug")
 	}
+
 	debug := flag.Bool("debug", false, "是否开启debug日志")
 	port := flag.Int("p", 8080, "启动端口")
 	flag.Parse()
@@ -138,9 +144,9 @@ func main() {
 	if err := cdn.InitCDN(); err != nil {
 		log.Fatal(err.Error())
 	}
-	if err := slb.InitSlb(); err != nil {
-		log.Fatal(err.Error())
-	}
+	//if err := slb.InitSlb(); err != nil {
+	//	log.Fatal(err.Error())
+	//}
 
 	s := program{*port}
 

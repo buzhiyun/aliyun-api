@@ -2,6 +2,8 @@ package utils
 
 import (
 	"errors"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/log"
 )
@@ -29,4 +31,24 @@ func GetAliyunKey() (regionId, aliyunKey, aliyunSecret string, err error) {
 		return
 	}
 	return
+}
+
+var AliyunClient = client()
+
+func client() *sdk.Client {
+	regionId, aliyunKey, aliyunSecret, _ := GetAliyunKey()
+
+	config := sdk.NewConfig()
+	// 是否开启重试机制
+	config.WithAutoRetry(true)
+	// 最大重试次数
+	config.WithMaxRetryTime(3)
+
+	credential := credentials.NewAccessKeyCredential(aliyunKey, aliyunSecret)
+	_c, err := sdk.NewClientWithOptions(regionId, config, credential)
+	if err != nil {
+		log.Errorf("初始化 slb client 失败, %s", err.Error())
+		return nil
+	}
+	return _c
 }

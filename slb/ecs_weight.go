@@ -20,12 +20,13 @@ var (
 func getVgroupWhite() map[string]bool {
 	vgWhiteList, ok := cfg.Config().GetStrings("slb.whitelist.vgroup")
 	if !ok {
-		log.Fatal("获取配置 slb.whitelist.vgroup 异常")
+		log.Fatal("[slb] 获取配置 slb.whitelist.vgroup 异常")
 		return nil
 	}
 	var whiteMap = make(map[string]bool)
 	for _, s := range vgWhiteList {
 		whiteMap[s] = true
+		log.Infof("[slb] 添加 vgroup %s 到白名单排除权重设置", s)
 	}
 	return whiteMap
 }
@@ -70,9 +71,9 @@ func SetEcsWeight(serverId string, weight int) (result []EcsSetResult, err error
 
 				for i, _bkServer := range bkServers {
 					newSet[i].ServerId = _bkServer.ServerId
-					newSet[i].ServerIp = _bkServer.ServerIp
-					newSet[i].Type = _bkServer.Type
-					newSet[i].Description = _bkServer.Description
+					//newSet[i].ServerIp = _bkServer.ServerIp
+					//newSet[i].Type = _bkServer.Type
+					//newSet[i].Description = _bkServer.Description
 					newSet[i].Weight = strconv.Itoa(_bkServer.Weight)
 					if _bkServer.ServerId == serverId {
 						newSet[i].Weight = strconv.Itoa(weight)
@@ -122,7 +123,7 @@ func SetEcsWeight(serverId string, weight int) (result []EcsSetResult, err error
 						newSet[i].ServerId = _bkServer.ServerId
 						newSet[i].ServerIp = _bkServer.ServerIp
 						newSet[i].Type = _bkServer.Type
-						newSet[i].Port = strconv.Itoa(_bkServer.Port)
+						newSet[i].Port = strconv.Itoa(*_bkServer.Port)
 						newSet[i].Description = _bkServer.Description
 						newSet[i].Weight = strconv.Itoa(_bkServer.Weight)
 						if _bkServer.ServerId == serverId {

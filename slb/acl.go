@@ -1,8 +1,9 @@
 package slb
 
 import (
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/buzhiyun/aliyun-api/msg"
+	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
 	"strings"
 	"time"
@@ -32,18 +33,26 @@ func AddIpToAcl(AclId string, IP []string, comment ...string) (err error) {
 
 	entrysJson, _ := json.MarshalToString(entrys)
 
-	request := slb.CreateAddAccessControlListEntryRequest()
+	request := requests.NewCommonRequest()
 	// 连接超时设置，仅对当前请求有效。
 	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
 	request.SetReadTimeout(60 * time.Second)
 
+	request.Method = "POST"
+	request.Scheme = "https" // https | http
+	request.Domain = "slb.aliyuncs.com"
+	request.Version = "2014-05-15"
+	request.ApiName = "AddAccessControlListEntry"
+	request.QueryParams["RegionId"] = "cn-hangzhou"
+
 	request.Scheme = "https"
 
-	request.AclId = AclId
-	request.AclEntrys = entrysJson
+	request.QueryParams["AclId"] = AclId
+	request.QueryParams["AclEntrys"] = entrysJson
 
-	response, err := client().AddAccessControlListEntry(request)
+	response, err := utils.AliyunClient.ProcessCommonRequest(request)
+
 	if err != nil {
 		log.Errorf("添加IP %v 到ACL %s 失败, %s", IP, AclId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
@@ -74,18 +83,22 @@ func RemoveIpFromAcl(AclId string, IP []string, comment ...string) (err error) {
 
 	entrysJson, _ := json.MarshalToString(entrys)
 
-	request := slb.CreateRemoveAccessControlListEntryRequest()
+	request := requests.NewCommonRequest()
 	// 连接超时设置，仅对当前请求有效。
 	request.SetConnectTimeout(5 * time.Second)
 	// 读超时设置，仅对当前请求有效。
 	request.SetReadTimeout(60 * time.Second)
 
-	request.Scheme = "https"
+	request.Method = "POST"
+	request.Scheme = "https" // https | http
+	request.Domain = "slb.aliyuncs.com"
+	request.Version = "2014-05-15"
+	request.ApiName = "RemoveAccessControlListEntry"
+	request.QueryParams["RegionId"] = "cn-hangzhou"
+	request.QueryParams["AclId"] = AclId
+	request.QueryParams["AclEntrys"] = entrysJson
 
-	request.AclId = AclId
-	request.AclEntrys = entrysJson
-
-	response, err := client().RemoveAccessControlListEntry(request)
+	response, err := utils.AliyunClient.ProcessCommonRequest(request)
 	if err != nil {
 		log.Errorf("从ACL %s 删除IP %v 失败, %s", AclId, IP, err.Error())
 		msg.AliyunSdkAlert(err.Error())
