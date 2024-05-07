@@ -116,14 +116,14 @@ func UpdateEcs() (refreshCount int, err error) {
 
 	instances, err := GetInstances()
 	if err != nil {
-		log.Errorf("刷新异常 %s", err.Error())
+		log.Errorf("[ecs] 刷新异常 %s", err.Error())
 		return
 	}
 
 	ecsInstances = &instances
 
 	refreshCount = len(instances)
-	log.Infof("刷新了 %v 条记录", refreshCount)
+	log.Infof("[ecs] 刷新了 %v 条记录", refreshCount)
 	//logger.Println("刷新了" + strconv.Itoa(count) + "条记录" )
 	return refreshCount, err
 }

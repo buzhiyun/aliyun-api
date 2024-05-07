@@ -1,7 +1,6 @@
 package slb
 
 import (
-	"errors"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -24,9 +23,6 @@ var (
 )
 
 func client() *slb.Client {
-	if _client != nil {
-		return _client
-	}
 
 	regionId, aliyunKey, aliyunSecret, _ := utils.GetAliyunKey()
 
@@ -42,17 +38,16 @@ func client() *slb.Client {
 		log.Errorf("初始化 slb client 失败, %s", err.Error())
 		return nil
 	}
-	_client = _c
 	return _c
 }
 
-func InitSlb() (err error) {
-	if client() == nil {
-		err = errors.New("初始化 slb client 失败")
-	}
-
-	return
-}
+//func InitSlb() (err error) {
+//	if client() == nil {
+//		err = errors.New("初始化 slb client 失败")
+//	}
+//
+//	return
+//}
 
 // 查找所有有该ECS的slb
 func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer, err error) {
@@ -80,7 +75,7 @@ func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer, err error) {
 		response, err := _client.DescribeLoadBalancers(request)
 
 		if err != nil {
-			log.Errorf("根据ecsId %s 查找 slb失败, %s", ecsServerId, err.Error())
+			log.Errorf("[slb] 根据ecsId %s 查找 slb失败, %s", ecsServerId, err.Error())
 			msg.AliyunSdkAlert(err.Error())
 			return slbs, err
 		}
@@ -113,7 +108,7 @@ func GetSlbBackendServer(slbId string) (bkServer []slb.BackendServerInDescribeLo
 
 	response, err := _client.DescribeLoadBalancerAttribute(request)
 	if err != nil {
-		log.Errorf("获取slb %s 后端服务器失败, %s", slbId, err.Error())
+		log.Errorf("[slb] 获取slb %s 后端服务器失败, %s", slbId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return bkServer, err
 	}
@@ -172,14 +167,14 @@ func GetSlbVserverGroup(slbId string) (vServerGroups []VServerGroup, err error) 
 	response, err := utils.AliyunClient.ProcessCommonRequest(request)
 
 	if err != nil {
-		log.Errorf("获取slb %s 的虚拟服务器组失败, %s", slbId, err.Error())
+		log.Errorf("[slb] 获取slb %s 的虚拟服务器组失败, %s", slbId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return vServerGroups, err
 	}
 	var resp DescribeVServerGroupsResponse
 	err = json.UnmarshalFromString(response.GetHttpContentString(), &resp)
 	if err != nil {
-		log.Errorf("解析json 返回异常 , %s, %s")
+		log.Errorf("[slb] 解析json 返回异常 , %s, %s", err.Error(), response.GetHttpContentString())
 	}
 
 	vServerGroups = append(vServerGroups, resp.VServerGroups...)
@@ -228,7 +223,7 @@ func GetSlbVserverGroupBackendServer(vServerGroupId string) (bkServer []BackendS
 
 	response, err := utils.AliyunClient.ProcessCommonRequest(request)
 	if err != nil {
-		log.Errorf("获取slb虚拟服务器 %s 组详情失败, %s", vServerGroupId, err.Error())
+		log.Errorf("[slb] 获取slb虚拟服务器 %s 组详情失败, %s", vServerGroupId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return bkServer, err
 	}
@@ -236,7 +231,7 @@ func GetSlbVserverGroupBackendServer(vServerGroupId string) (bkServer []BackendS
 	var resp DescribeVServerGroupAttributeResp
 	err = json.UnmarshalFromString(response.GetHttpContentString(), &resp)
 	if err != nil {
-		log.Errorf("解析json 返回异常 , %s, %s")
+		log.Errorf("[slb] 解析json 返回异常 , %s, %s", err.Error(), response.GetHttpContentString())
 	}
 
 	bkServer = append(bkServer, resp.BackendServers.BackendServer...)
@@ -269,7 +264,7 @@ func SetSlbBackendServer(slbId string, backendServers []backendServer) (err erro
 
 	bkserverJson, err := json.MarshalToString(backendServers)
 	if err != nil {
-		log.Errorf("解析backendServers数据失败 %#v 权重失败, %s", backendServers, err.Error())
+		log.Errorf("[slb] 解析backendServers数据失败 %#v 权重失败, %s", backendServers, err.Error())
 		return
 	}
 	log.Debugf("bkserverJson: %s", bkserverJson)
@@ -277,7 +272,7 @@ func SetSlbBackendServer(slbId string, backendServers []backendServer) (err erro
 
 	response, err := utils.AliyunClient.ProcessCommonRequest(request)
 	if err != nil {
-		log.Errorf("设置权重 %s 权重失败, %s", slbId, err.Error())
+		log.Errorf("[slb] 设置权重 %s 权重失败, %s", slbId, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return
 	}

@@ -119,7 +119,7 @@ func autoRefreshEcs() {
 
 func main() {
 
-	if logcolor, ok := cfg.Config().GetString("log.color"); ok && logcolor == "false" {
+	if logcolor, ok := cfg.Config().GetBool("log.color"); ok && !logcolor {
 		log.Info("关闭日志颜色")
 		log.DisableColor()
 	}

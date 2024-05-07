@@ -100,11 +100,11 @@ func RemoveIpFromAcl(AclId string, IP []string, comment ...string) (err error) {
 
 	response, err := utils.AliyunClient.ProcessCommonRequest(request)
 	if err != nil {
-		log.Errorf("从ACL %s 删除IP %v 失败, %s", AclId, IP, err.Error())
+		log.Errorf("[slb] 从ACL %s 删除IP %v 失败, %s", AclId, IP, err.Error())
 		msg.AliyunSdkAlert(err.Error())
 		return err
 	}
 
-	log.Infof("从ACL %s 删除IP %v 成功 \n%s", AclId, IP, response.GetHttpContentString())
+	log.Infof("[slb] 从ACL %s 删除IP %v 成功 \n%s", AclId, IP, response.GetHttpContentString())
 	return
 }

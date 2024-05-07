@@ -18,6 +18,10 @@
       vgroup:
         - 'rsp-xxxxxxxxxx'
 
+  log:
+    level: "debug"
+    color: false
+
   security:
     whitelist:  # 白名单列表 list ，ip支持通配符* ，白名单内的ip可以访问，以后有时间了再改成其他的访问控制
       - "192.168.8.*"
