@@ -1,4 +1,4 @@
-FROM golang:1.25-alpine as build
+FROM golang:1.25-alpine AS build
 
 ENV GO111MODULE=on
 ENV GOPROXY=https://goproxy.cn
@@ -8,14 +8,14 @@ WORKDIR /app
 
 
 RUN  sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repositories && \
-     go mod vendor && sed -i '/https:\/\/fonts.googleapis.com/d' vendor/github.com/iris-contrib/swagger/v12/swagger.go && \
+     go mod vendor && \
      go build -ldflags '-s -w' -o aliyun-api aliyun.go
 
 
 
 FROM alpine:3.23
 RUN sed -i 's#dl-cdn.alpinelinux.org#mirrors.aliyun.com#g' /etc/apk/repositories  && apk add sudo curl && \
-    sed -i 's#mirrors.aliyun.com#mirrors.cloud.aliyuncs.com#g' /etc/apk/repositories  && \
+    sed -i 's#https://mirrors.aliyun.com#http://mirrors.cloud.aliyuncs.com#g' /etc/apk/repositories  && \
     rm -rf /var/cache/apk/* && \
     rm -rf /root/.cache && \
     rm -rf /tmp/* && \
