@@ -5,7 +5,7 @@ import (
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
-	"github.com/kataras/iris/v12"
+	"github.com/gin-gonic/gin"
 	"strings"
 )
 
@@ -27,9 +27,9 @@ type AclListReq struct {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/slb/acl/add [post]
-func AddIpToACL(ctx iris.Context) {
+func AddIpToACL(ctx *gin.Context) {
 	var data AclListReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -59,7 +59,7 @@ func AddIpToACL(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, nil, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, nil, "ok"))
 
 }
 
@@ -74,9 +74,9 @@ func AddIpToACL(ctx iris.Context) {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/slb/acl/delete [post]
-func DeleteIpFromACL(ctx iris.Context) {
+func DeleteIpFromACL(ctx *gin.Context) {
 	var data AclListReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -106,6 +106,6 @@ func DeleteIpFromACL(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, nil, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, nil, "ok"))
 
 }

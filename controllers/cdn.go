@@ -4,7 +4,7 @@ import (
 	"github.com/buzhiyun/aliyun-api/cdn"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
-	"github.com/kataras/iris/v12"
+	"github.com/gin-gonic/gin"
 	"strings"
 )
 
@@ -23,9 +23,9 @@ type RefreshCdnReq struct {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/cdn/refresh [post]
-func RefreshCdnUrl(ctx iris.Context) {
+func RefreshCdnUrl(ctx *gin.Context) {
 	var data RefreshCdnReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -38,5 +38,5 @@ func RefreshCdnUrl(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, resp, "刷新cdn成功"))
+	ctx.JSON(200, utils.ApiResource(200, resp, "刷新cdn成功"))
 }

@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"strconv"
+	"time"
+
 	"github.com/buzhiyun/aliyun-api/cdn"
 	"github.com/buzhiyun/aliyun-api/controllers"
 	_ "github.com/buzhiyun/aliyun-api/docs"
@@ -10,105 +13,74 @@ import (
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/log"
-	"github.com/buzhiyun/go-utils/validator"
-	"github.com/iris-contrib/swagger/v12"
-	"github.com/iris-contrib/swagger/v12/swaggerFiles"
-	"github.com/kataras/iris/v12"
-	"strconv"
-	"time"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type program struct {
 	port int
 }
 
-// go-bindata -fs -nomemcopy -prefix "web/dist" ./web/dist/...
 // swag i -g aliyun.go
 
-func newApp() (app *iris.Application) {
-	app = iris.New()
-	// OR: basicauth.Default(users)
+func newApp() *gin.Engine {
+	app := gin.New()
+	app.Use(gin.Logger(), gin.Recovery())
 
-	app.Validator = validator.New()
-	// go get -u github.com/go-bindata/go-bindata/...
-	// 静态文件直接打包到程序里  先执行 go-bindata -fs -nomemcopy -prefix "web/dist" ./web/dist/...
-	// https://docs.iris-go.com/iris/file-server/http2push-embedded-compression
-	//var opts = iris.DirOptions{
-	//	IndexName: "index.html",
-	//	PushTargetsRegexp: map[string]*regexp.Regexp{
-	//		"/": iris.MatchCommonAssets,
-	//	},
-	//	ShowList: true,
-	//	Cache: iris.DirCacheOptions{
-	//		Enable:         true,
-	//		CompressIgnore: iris.MatchImagesAssets,
-	//		Encodings:      []string{"gzip", "deflate", "br", "snappy"},
-	//		// Compress files equal or larger than 50 bytes.
-	//		CompressMinSize: 50,
-	//		Verbose:         1,
-	//	},
-	//}
-	//app.HandleDir("/", AssetFile(), opts)
-
-	//测试的时候允许跨域
-	//Cors := cors.New(cors.Options{
-	//	AllowedOrigins:   []string{"*"}, // 这里写允许的服务器地址，* 号标识任意
-	//	AllowCredentials: true,
-	//})
-
-	//api := app.Party("/api", Cors).AllowMethods(iris.MethodOptions)
-	api := app.Party("/api")
+	api := app.Group("/api")
 
 	// ip白名单
 	api.Use(middleware.WhiteList)
 
-	api.PartyFunc("/ecs", func(server iris.Party) {
-		server.Post("/search", controllers.SearchHost)
-		server.Post("/refresh", controllers.RefreshHost)
-		server.Post("/weight", controllers.SetEcsSlbWeight)
-	})
+	ecsGroup := api.Group("/ecs")
+	{
+		ecsGroup.POST("/search", controllers.SearchHost)
+		ecsGroup.POST("/refresh", controllers.RefreshHost)
+		ecsGroup.POST("/weight", controllers.SetEcsSlbWeight)
+	}
 
-	api.PartyFunc("/cdn", func(server iris.Party) {
-		server.Post("/refresh", controllers.RefreshCdnUrl)
-	})
+	cdnGroup := api.Group("/cdn")
+	{
+		cdnGroup.POST("/refresh", controllers.RefreshCdnUrl)
+	}
 
-	slb := api.Party("/slb")
+	slbGroup := api.Group("/slb")
+	aclGroup := slbGroup.Group("/acl")
+	{
+		aclGroup.POST("/add", controllers.AddIpToACL)
+		aclGroup.POST("/delete", controllers.DeleteIpFromACL)
+	}
 
-	slb.PartyFunc("/acl", func(acl iris.Party) {
-		acl.Post("/add", controllers.AddIpToACL)
-		acl.Post("/delete", controllers.DeleteIpFromACL)
-	})
-
-	cms := api.Party("/cms")
-	cms.PartyFunc("/ecs", func(ecs iris.Party) {
-		ecs.Post("/cpu", controllers.GetEcsCpu)
-		ecs.Post("/mem", controllers.GetEcsMem)
-		ecs.Post("/gpu_gpu", controllers.GetEcsGpuGpu)
-		ecs.Post("/gpu_mem", controllers.GetEcsGpuMem)
-	})
-
-	config := &swagger.Config{
-		URL: "/swagger/doc.json", //The url pointing to API definition
+	cmsGroup := api.Group("/cms")
+	cmsEcsGroup := cmsGroup.Group("/ecs")
+	{
+		cmsEcsGroup.POST("/cpu", controllers.GetEcsCpu)
+		cmsEcsGroup.POST("/mem", controllers.GetEcsMem)
+		cmsEcsGroup.POST("/gpu_gpu", controllers.GetEcsGpuGpu)
+		cmsEcsGroup.POST("/gpu_mem", controllers.GetEcsGpuMem)
 	}
 
 	// swagger 配置
-	swaggerUI := swagger.CustomWrapHandler(config, swaggerFiles.Handler)
-	_swagger := app.Party("/swagger")
+	// 记得运行 swag init -g aliyun.go
+	swaggerGroup := app.Group("/swagger")
+	swaggerGroup.Use(middleware.WhiteList)
 
-	_swagger.Use(middleware.WhiteList)
-
-	// 把 /swagger 重定向到 /swagger/index.html
-	_swagger.Get("", func(ctx iris.Context) {
-		ctx.Redirect("/swagger/index.html", 301)
+	// 访问 /swagger/ 重定向到 /swagger/index.html，其余走 gin-swagger
+	swaggerGroup.GET("/*any", func(c *gin.Context) {
+		if c.Param("any") == "/" || c.Param("any") == "" {
+			c.Redirect(301, "/swagger/index.html")
+			return
+		}
+		ginSwagger.WrapHandler(swaggerFiles.Handler)(c)
 	})
-	_swagger.Get("/{any:path}", swaggerUI)
 
-	return
+	return app
 }
 
 func (p *program) run() {
 	app := newApp()
-	app.Run(iris.Addr("0.0.0.0:" + strconv.Itoa(p.port)))
+	app.Run("0.0.0.0:" + strconv.Itoa(p.port))
 }
 
 func autoRefreshEcs() {

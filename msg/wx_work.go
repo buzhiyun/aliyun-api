@@ -35,7 +35,7 @@ func sendWechatWorkAppMessage(markdownContent string, toUsers []string) (err err
 		Content: markdownContent,
 	}
 
-	resp, err := http.HttpPostJson(msgApi+"/api/wechatwork/msg/markdown", data)
+	resp, err := http.HttpPostJson(msgApi+"/api/wechatwork/msg/markdown", data , map[string]string{} , http.HttpClientOption{})
 	if err != nil {
 		log.Errorf("发送企业微信应用消息错误: %s", err.Error())
 	} else {

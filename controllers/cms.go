@@ -5,7 +5,7 @@ import (
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
-	"github.com/kataras/iris/v12"
+	"github.com/gin-gonic/gin"
 )
 
 type getDataPointReq struct {
@@ -24,9 +24,9 @@ type getDataPointReq struct {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/cms/ecs/cpu [post]
-func GetEcsCpu(ctx iris.Context) {
+func GetEcsCpu(ctx *gin.Context) {
 	var data getDataPointReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -44,7 +44,7 @@ func GetEcsCpu(ctx iris.Context) {
 
 	if len(instanceIds) == 0 {
 		log.Warnf("无效实例Id或主机名 , %v", data)
-		ctx.JSON(utils.ApiResource(200, []cms.Datapoint{}, "ok"))
+		ctx.JSON(200, utils.ApiResource(200, []cms.Datapoint{}, "ok"))
 		return
 	}
 
@@ -54,7 +54,7 @@ func GetEcsCpu(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, resp, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, resp, "ok"))
 }
 
 // SearchHost godoc
@@ -68,9 +68,9 @@ func GetEcsCpu(ctx iris.Context) {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/cms/ecs/mem [post]
-func GetEcsMem(ctx iris.Context) {
+func GetEcsMem(ctx *gin.Context) {
 	var data getDataPointReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -88,7 +88,7 @@ func GetEcsMem(ctx iris.Context) {
 
 	if len(instanceIds) == 0 {
 		log.Warnf("无效实例Id或主机名 , %v", data)
-		ctx.JSON(utils.ApiResource(200, []cms.Datapoint{}, "ok"))
+		ctx.JSON(200, utils.ApiResource(200, []cms.Datapoint{}, "ok"))
 		return
 	}
 
@@ -98,7 +98,7 @@ func GetEcsMem(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, resp, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, resp, "ok"))
 }
 
 // SearchHost godoc
@@ -112,9 +112,9 @@ func GetEcsMem(ctx iris.Context) {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/cms/ecs/gpu_gpu [post]
-func GetEcsGpuGpu(ctx iris.Context) {
+func GetEcsGpuGpu(ctx *gin.Context) {
 	var data getDataPointReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -132,7 +132,7 @@ func GetEcsGpuGpu(ctx iris.Context) {
 
 	if len(instanceIds) == 0 {
 		log.Warnf("无效实例Id或主机名 , %v", data)
-		ctx.JSON(utils.ApiResource(200, []cms.Datapoint{}, "ok"))
+		ctx.JSON(200, utils.ApiResource(200, []cms.Datapoint{}, "ok"))
 		return
 	}
 
@@ -142,7 +142,7 @@ func GetEcsGpuGpu(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, resp, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, resp, "ok"))
 }
 
 // SearchHost godoc
@@ -156,9 +156,9 @@ func GetEcsGpuGpu(ctx iris.Context) {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/cms/ecs/gpu_mem [post]
-func GetEcsGpuMem(ctx iris.Context) {
+func GetEcsGpuMem(ctx *gin.Context) {
 	var data getDataPointReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -176,7 +176,7 @@ func GetEcsGpuMem(ctx iris.Context) {
 
 	if len(instanceIds) == 0 {
 		log.Warnf("无效实例Id或主机名 , %v", data)
-		ctx.JSON(utils.ApiResource(200, []cms.Datapoint{}, "ok"))
+		ctx.JSON(200, utils.ApiResource(200, []cms.Datapoint{}, "ok"))
 		return
 	}
 
@@ -186,5 +186,5 @@ func GetEcsGpuMem(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, resp, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, resp, "ok"))
 }

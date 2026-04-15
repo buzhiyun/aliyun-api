@@ -7,7 +7,7 @@ import (
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
-	"github.com/kataras/iris/v12"
+	"github.com/gin-gonic/gin"
 )
 
 type searchHostReq struct {
@@ -27,9 +27,9 @@ type searchHostReq struct {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/ecs/search [post]
-func SearchHost(ctx iris.Context) {
+func SearchHost(ctx *gin.Context) {
 	var data searchHostReq
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -57,7 +57,7 @@ func SearchHost(ctx iris.Context) {
 		ecsList = ecs.SearchByIP(data.Ip)
 	}
 
-	ctx.JSON(utils.ApiResource(200, ecsList, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, ecsList, "ok"))
 
 }
 
@@ -71,7 +71,7 @@ func SearchHost(ctx iris.Context) {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/ecs/refresh [post]
-func RefreshHost(ctx iris.Context) {
+func RefreshHost(ctx *gin.Context) {
 	log.Infof("[ecs] %s 尝试刷新实例列表", ctx.GetHeader("realip"))
 
 	refreshCount, err := ecs.UpdateEcs()
@@ -80,7 +80,7 @@ func RefreshHost(ctx iris.Context) {
 		return
 	}
 
-	ctx.JSON(utils.ApiResource(200, refreshCount, fmt.Sprintf("成功刷新 %v 个实例", refreshCount)))
+	ctx.JSON(200, utils.ApiResource(200, refreshCount, fmt.Sprintf("成功刷新 %v 个实例", refreshCount)))
 
 }
 
@@ -101,9 +101,9 @@ type setEcsWeight struct {
 // @Failure      400  {object}  utils.ApiJson
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/ecs/weight [post]
-func SetEcsSlbWeight(ctx iris.Context) {
+func SetEcsSlbWeight(ctx *gin.Context) {
 	var data setEcsWeight
-	err := ctx.ReadJSON(&data)
+	err := ctx.ShouldBindJSON(&data)
 	if err != nil {
 		badRequest(ctx, err.Error())
 		return
@@ -123,6 +123,6 @@ func SetEcsSlbWeight(ctx iris.Context) {
 		result = append(result, setResult...)
 	}
 
-	ctx.JSON(utils.ApiResource(200, result, msg))
+	ctx.JSON(200, utils.ApiResource(200, result, msg))
 
 }
