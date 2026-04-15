@@ -1,4 +1,4 @@
-FROM golang:1.18.10-alpine3.17 as build
+FROM golang:1.25-alpine as build
 
 ENV GO111MODULE=on
 ENV GOPROXY=https://goproxy.cn
@@ -13,7 +13,7 @@ RUN  sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repo
 
 
 
-FROM alpine:3.17
+FROM alpine:3.23
 # 不要用root
 RUN sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repositories  && apk add sudo && \
     rm -rf /var/cache/apk/* && \
