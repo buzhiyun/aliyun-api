@@ -1,12 +1,12 @@
 package middleware
 
 import (
+	"net/http"
+
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/cfg"
 	"github.com/buzhiyun/go-utils/log"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strings"
 )
 
 func WhiteList(ctx *gin.Context) {
@@ -20,9 +20,10 @@ func WhiteList(ctx *gin.Context) {
 
 	forwardedIP := ctx.GetHeader("X-Forwarded-For")
 	log.Debugf("X-Forwarded-For: [%s]", forwardedIP)
-	clientHost := strings.Split(ctx.Request.RemoteAddr, ":")[0]
+	// clientHost := strings.Split(ctx.Request.RemoteAddr, ":")[0]
+	clientHost := ctx.RemoteIP()
 	// 本机直接放行
-	if clientHost == "" || clientHost == "127.0.0.1" {
+	if clientHost == "127.0.0.1" || clientHost == "::1" {
 		ctx.Next()
 		return
 	}

@@ -85,10 +85,17 @@ func (p *program) run() {
 }
 
 func main() {
-	if loglevel, ok := cfg.Config().GetString("loglevel"); ok && loglevel == "debug" {
+
+	if logcolor, ok := cfg.Config().GetBool("log.color"); ok && !logcolor {
+		log.Info("关闭日志颜色")
+		log.DisableColor()
+	}
+
+	if loglevel, ok := cfg.Config().GetString("log.level"); ok && loglevel == "debug" {
 		log.Info("设置日志级别为debug")
 		log.SetLevel("debug")
 	}
+	
 	debug := flag.Bool("debug", false, "是否开启debug日志")
 	port := flag.Int("p", 8080, "启动端口")
 	flag.Parse()

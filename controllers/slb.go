@@ -42,7 +42,6 @@ func AddIpToACL(ctx *gin.Context) {
 	// 加IP
 	if data.IP != nil {
 		ipList = append(ipList, *data.IP...)
-		return
 	}
 
 	// 加 Host 的IP
@@ -89,7 +88,6 @@ func DeleteIpFromACL(ctx *gin.Context) {
 	// 加IP
 	if data.IP != nil {
 		ipList = append(ipList, *data.IP...)
-		return
 	}
 
 	// 加 Host 的IP

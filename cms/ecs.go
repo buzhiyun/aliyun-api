@@ -35,7 +35,7 @@ func (c *aliyunCms) GetEcsMetrics(instanceIds []string, metricName string) (data
 
 	dimensionsStr, err := json.MarshalToString(dimensions)
 	if err != nil {
-		log.Errorf("序列化json 数据异常, %s", err.Error())
+		log.Errorf("[cms] 序列化json 数据异常, %s", err.Error())
 		return
 	}
 
@@ -51,13 +51,13 @@ func (c *aliyunCms) GetEcsMetrics(instanceIds []string, metricName string) (data
 
 	response, err := c.client.DescribeMetricLast(request)
 	if err != nil {
-		log.Errorf("查询cms datapoints 异常", err.Error())
+		log.Errorf("[cms] 查询cms datapoints 异常", err.Error())
 		return
 	}
 
 	err = json.UnmarshalFromString(response.Datapoints, &datapoints)
 	if err != nil {
-		log.Errorf("反序列化 datapoints 数据异常, %s , %s, %s", err.Error(), response.Message, response.Datapoints)
+		log.Errorf("[cms] 反序列化 datapoints 数据异常, %s , %s, %s", err.Error(), response.Message, response.Datapoints)
 		return
 	}
 	return
