@@ -2,6 +2,8 @@ package slb
 
 import (
 	"errors"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -9,7 +11,6 @@ import (
 	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
-	"time"
 )
 
 //type backendServer struct {
@@ -19,7 +20,10 @@ import (
 //	Weight   int    `json:"Weight"`
 //}
 
-var _client *slb.Client
+var (
+	_client      *slb.Client
+	slbInstances *[]slb.LoadBalancer
+)
 
 func client() *slb.Client {
 	if _client != nil {
@@ -50,6 +54,13 @@ func InitSlb() (err error) {
 		err = errors.New("初始化 slb client 失败")
 	}
 
+	// 每隔600s 刷新一次Loadbalance列表
+	go func() {
+		for {
+			RefreshSlb()
+			time.Sleep(600 * time.Second)
+		}
+	}()
 	return
 }
 
@@ -239,5 +250,68 @@ func SetSlbVserverGroup(vGroupId string, backendServers []backendServer) (err er
 	}
 
 	log.Infof("设置虚拟服务器组 %s 权重 %s \n%s", vGroupId, backendServers, response.GetHttpContentString())
+	return
+}
+
+// 刷新slb实例列表
+func RefreshSlb() (err error) {
+	// 获取所有页的Loadbalance
+	pageNum := 1 // 先查第一页的
+	maxPage := 1 //默认最大页数就是1
+	for pageNum <= maxPage {
+
+		request := slb.CreateDescribeLoadBalancersRequest()
+		// 连接超时设置，仅对当前请求有效。
+		request.SetConnectTimeout(5 * time.Second)
+		// 读超时设置，仅对当前请求有效。
+		request.SetReadTimeout(60 * time.Second)
+		request.Scheme = "https"
+
+		request.PageNumber = requests.NewInteger(pageNum)
+		request.PageSize = requests.NewInteger(100)
+
+		response, err := client().DescribeLoadBalancers(request)
+		if err != nil {
+			log.Errorf("[slb] 刷新slb列表失败, %s", err.Error())
+			msg.AliyunSdkAlert(err.Error())
+			return err
+		}
+		if response != nil {
+			if pageNum == 1 {
+				slbInstances = &response.LoadBalancers.LoadBalancer
+			} else {
+				*slbInstances = append(*slbInstances, response.LoadBalancers.LoadBalancer...)
+			}
+			maxPage = ((response.TotalCount - 1) / 100) + 1
+		}
+		//增加页码，准备取下一页
+		pageNum++
+		log.Debugf("[slb] 正在加载slb列表, %d/%d页", pageNum, maxPage)
+	}
+	log.Infof("[slb] 刷新列表成功, 共%d个实例", len(*slbInstances))
+	return
+}
+
+// 根据slb名称搜索slb
+func SearchByName(slbName string) (slbs []slb.LoadBalancer, err error) {
+	// 遍历 slbInstances 查找主机
+	for _, slb := range *slbInstances {
+		// 模糊匹配
+		if utils.MatchWildcard(slb.LoadBalancerName, slbName) {
+			slbs = append(slbs, slb)
+		}
+	}
+	return
+}
+
+// 根据ip搜索slb
+func SearchByIp(ip string) (slbs []slb.LoadBalancer, err error) {
+	// 遍历 slbInstances 查找slb
+	for _, slb := range *slbInstances {
+		// 模糊匹配
+		if utils.MatchWildcard(slb.Address, ip) {
+			slbs = append(slbs, slb)
+		}
+	}
 	return
 }

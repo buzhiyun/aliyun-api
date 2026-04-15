@@ -14,14 +14,17 @@ RUN  sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repo
 
 
 FROM alpine:3.23
-# 不要用root
-RUN sed -i 's#dl-cdn.alpinelinux.org#mirrors.cloud.tencent.com#g' /etc/apk/repositories  && apk add sudo && \
+RUN sed -i 's#dl-cdn.alpinelinux.org#mirrors.aliyun.com#g' /etc/apk/repositories  && apk add sudo curl && \
+    sed -i 's#mirrors.aliyun.com#mirrors.cloud.aliyuncs.com#g' /etc/apk/repositories  && \
     rm -rf /var/cache/apk/* && \
     rm -rf /root/.cache && \
     rm -rf /tmp/* && \
     echo 'lucifer ALL=(ALL) ALL,NOPASSWD:/sbin/apk' >> /etc/sudoers && \
-    adduser -h /app -u 1000 -D lucifer
+    adduser -h /app -u 1000 -D lucifer && \
+    echo -e '\n\n# septnet CA' >> /etc/ssl/certs/ca-certificates.crt && curl 'https://7netpublic.oss-cn-hangzhou.aliyuncs.com/dev/ca/septnet-ca.crt' >> /etc/ssl/certs/ca-certificates.crt
+    
 
+# 不要用root
 USER lucifer
 WORKDIR /app
 

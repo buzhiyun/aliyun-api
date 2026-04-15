@@ -523,6 +523,87 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/slb/refresh": {
+            "post": {
+                "description": "刷新SLB配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "slb"
+                ],
+                "summary": "刷新SLB配置",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/slb/search": {
+            "post": {
+                "description": "搜索 SLB",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "slb"
+                ],
+                "summary": "搜索 SLB",
+                "parameters": [
+                    {
+                        "description": "slb名称 hostname 和 ip 不能同时为空",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.searchSlbReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -623,6 +704,19 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "ip": {
+                    "description": "主机名,支持通配符",
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.searchSlbReq": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "description": "主机名,支持通配符",
+                    "type": "string"
+                },
+                "slbname": {
                     "description": "主机名,支持通配符",
                     "type": "string"
                 }

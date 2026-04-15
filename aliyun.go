@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"strconv"
-	"time"
 
 	"github.com/buzhiyun/aliyun-api/cdn"
 	"github.com/buzhiyun/aliyun-api/controllers"
@@ -46,6 +45,8 @@ func newApp() *gin.Engine {
 	}
 
 	slbGroup := api.Group("/slb")
+	slbGroup.POST("/refresh", controllers.RefreshSlb)
+	slbGroup.POST("/search", controllers.SearchSlb)
 	aclGroup := slbGroup.Group("/acl")
 	{
 		aclGroup.POST("/add", controllers.AddIpToACL)
@@ -83,13 +84,6 @@ func (p *program) run() {
 	app.Run("0.0.0.0:" + strconv.Itoa(p.port))
 }
 
-func autoRefreshEcs() {
-	for {
-		ecs.UpdateEcs()
-		time.Sleep(300 * time.Second)
-	}
-}
-
 func main() {
 	if loglevel, ok := cfg.Config().GetString("loglevel"); ok && loglevel == "debug" {
 		log.Info("设置日志级别为debug")
@@ -115,8 +109,6 @@ func main() {
 	}
 
 	s := program{*port}
-
-	go autoRefreshEcs()
 
 	s.run()
 }

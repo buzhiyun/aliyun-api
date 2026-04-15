@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"strings"
+
+	aliyunslb "github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/buzhiyun/aliyun-api/ecs"
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
 	"github.com/gin-gonic/gin"
-	"strings"
 )
 
 type AclListReq struct {
@@ -108,4 +110,66 @@ func DeleteIpFromACL(ctx *gin.Context) {
 
 	ctx.JSON(200, utils.ApiResource(200, nil, "ok"))
 
+}
+
+type searchSlbReq struct {
+	Slbname string `json:"slbname"  validate:"required_without=Ip" err_info:"slb名称 hostname 和 ip 不能同时为空"` // 主机名,支持通配符
+	Ip      string `json:"ip"  validate:""`                                                               // 主机名,支持通配符
+	//Fuzzy    *bool  `json:"fuzzy,omitempty" `                                  // 是否模糊搜索 ，默认否
+}
+
+// SearchHost godoc
+// @Summary      搜索 SLB
+// @Description  搜索 SLB
+// @Tags         slb
+// @Accept       json
+// @Produce      json
+// @Param   json  body     searchSlbReq   true  "slb名称 hostname 和 ip 不能同时为空"
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/slb/search [post]
+func SearchSlb(ctx *gin.Context) {
+	var data searchSlbReq
+	err := ctx.ShouldBindJSON(&data)
+	if err != nil {
+		badRequest(ctx, err.Error())
+		return
+	}
+
+	var slbs []aliyunslb.LoadBalancer
+
+	if data.Slbname != "" {
+		slbs, err = slb.SearchByName(data.Slbname)
+	}
+
+	if data.Ip != "" {
+		slbs, err = slb.SearchByIp(data.Ip)
+	}
+	if err != nil {
+		internalServerError(ctx, err.Error())
+		return
+	}
+
+	ctx.JSON(200, utils.ApiResource(200, slbs, "ok"))
+}
+
+// RefreshSlb godoc
+// @Summary      刷新SLB配置
+// @Description  刷新SLB配置
+// @Tags         slb
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}   utils.ApiJson
+// @Failure      400  {object}  utils.ApiJson
+// @Failure      500  {object}  utils.ApiJson
+// @Router       /api/slb/refresh [post]
+func RefreshSlb(ctx *gin.Context) {
+	err := slb.RefreshSlb()
+	if err != nil {
+		internalServerError(ctx, err.Error())
+		ctx.JSON(500, utils.ApiResource(500, nil, err.Error()))
+		return
+	}
+	ctx.JSON(200, utils.ApiResource(200, nil, "ok"))
 }

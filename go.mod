@@ -3,8 +3,8 @@ module github.com/buzhiyun/aliyun-api
 go 1.25
 
 require (
-	//github.com/aliyun/alibaba-cloud-sdk-go v1.62.730
-	github.com/aliyun/alibaba-cloud-sdk-go v1.62.204
+	github.com/aliyun/alibaba-cloud-sdk-go v1.63.107
+	// github.com/aliyun/alibaba-cloud-sdk-go v1.62.204
 	github.com/buzhiyun/go-utils v0.3.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/swaggo/files v1.0.1
@@ -54,7 +54,6 @@ require (
 	golang.org/x/sys v0.20.0 // indirect
 	golang.org/x/text v0.15.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
 	gopkg.in/check.v1 v1.0.0-20200902074654-038fdea0a05b // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

@@ -2,6 +2,8 @@ package ecs
 
 import (
 	"errors"
+	"time"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
@@ -9,7 +11,6 @@ import (
 	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
-	"time"
 )
 
 var (
@@ -49,7 +50,13 @@ func InitECS() (err error) {
 	if client() == nil {
 		err = errors.New("初始化 ecs client 失败")
 	}
-
+	// 每隔300s 执行一次刷新
+	go func() {
+		for {
+			UpdateEcs()
+			time.Sleep(300 * time.Second)
+		}
+	}()
 	return
 }
 
@@ -116,14 +123,14 @@ func UpdateEcs() (refreshCount int, err error) {
 
 	instances, err := GetInstances()
 	if err != nil {
-		log.Errorf("刷新异常 %s", err.Error())
+		log.Errorf("[ecs] 刷新异常 %s", err.Error())
 		return
 	}
 
 	ecsInstances = &instances
 
 	refreshCount = len(instances)
-	log.Infof("刷新了 %v 条记录", refreshCount)
+	log.Infof("[ecs] 刷新了 %v 条记录", refreshCount)
 	//logger.Println("刷新了" + strconv.Itoa(count) + "条记录" )
 	return refreshCount, err
 }
