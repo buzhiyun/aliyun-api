@@ -254,7 +254,7 @@ func SetSlbVserverGroup(vGroupId string, backendServers []backendServer) (err er
 }
 
 // 刷新slb实例列表
-func RefreshSlb() (err error) {
+func RefreshSlb() (refreshCount int, err error) {
 	// 获取所有页的Loadbalance
 	pageNum := 1 // 先查第一页的
 	maxPage := 1 //默认最大页数就是1
@@ -270,11 +270,11 @@ func RefreshSlb() (err error) {
 		request.PageNumber = requests.NewInteger(pageNum)
 		request.PageSize = requests.NewInteger(100)
 
-		response, err := client().DescribeLoadBalancers(request)
+		response, _err := client().DescribeLoadBalancers(request)
 		if err != nil {
 			log.Errorf("[slb] 刷新slb列表失败, %s", err.Error())
 			msg.AliyunSdkAlert(err.Error())
-			return err
+			return refreshCount, _err
 		}
 		if response != nil {
 			if pageNum == 1 {
@@ -288,7 +288,8 @@ func RefreshSlb() (err error) {
 		pageNum++
 		log.Debugf("[slb] 正在加载slb列表, %d/%d页", pageNum, maxPage)
 	}
-	log.Infof("[slb] 刷新列表成功, 共%d个实例", len(*slbInstances))
+	refreshCount = len(*slbInstances)
+	log.Infof("[slb] 刷新列表成功, 共%d个实例", refreshCount)
 	return
 }
 

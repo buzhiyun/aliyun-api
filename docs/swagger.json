@@ -294,6 +294,63 @@
                 }
             }
         },
+        "/api/eci/refresh": {
+            "post": {
+                "description": "刷新ECI容器组",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ECI"
+                ],
+                "summary": "刷新ECI容器组",
+                "responses": {
+                    "200": {
+                        "description": "response",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/eci/search": {
+            "post": {
+                "description": "搜索ECI实例",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ECI"
+                ],
+                "summary": "搜索ECI实例",
+                "parameters": [
+                    {
+                        "description": "request",
+                        "name": "req",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.searchEciReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "response",
+                        "schema": {
+                            "$ref": "#/definitions/utils.ApiJson"
+                        }
+                    }
+                }
+            }
+        },
         "/api/ecs/refresh": {
             "post": {
                 "description": "刷新ecs实例列表",
@@ -682,6 +739,19 @@
                     "example": [
                         "i-bp1d1oh9a06r70buf03l"
                     ]
+                }
+            }
+        },
+        "controllers.searchEciReq": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "description": "主机名,支持通配符",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "主机名,支持通配符",
+                    "type": "string"
                 }
             }
         },

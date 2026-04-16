@@ -53,6 +53,12 @@ func newApp() *gin.Engine {
 		aclGroup.POST("/delete", controllers.DeleteIpFromACL)
 	}
 
+	eciGroup := api.Group("/eci")
+	{
+		eciGroup.POST("/search", controllers.SearchEci)
+		eciGroup.POST("/refresh", controllers.RefreshEciContainerGroup)
+	}
+
 	cmsGroup := api.Group("/cms")
 	cmsEcsGroup := cmsGroup.Group("/ecs")
 	{
@@ -85,6 +91,7 @@ func (p *program) run() {
 }
 
 func main() {
+	gin.SetMode(gin.ReleaseMode)
 
 	if logcolor, ok := cfg.Config().GetBool("log.color"); ok && !logcolor {
 		log.Info("关闭日志颜色")
@@ -94,8 +101,9 @@ func main() {
 	if loglevel, ok := cfg.Config().GetString("log.level"); ok && loglevel == "debug" {
 		log.Info("设置日志级别为debug")
 		log.SetLevel("debug")
+		gin.SetMode(gin.DebugMode)
 	}
-	
+
 	debug := flag.Bool("debug", false, "是否开启debug日志")
 	port := flag.Int("p", 8080, "启动端口")
 	flag.Parse()

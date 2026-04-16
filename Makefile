@@ -8,7 +8,7 @@ help:
 	@echo "  make image - 构建Docker镜像"
 
 # 变量定义
-TAG ?= v0.1.0
+TAG ?= v0.1.1
 REPO ?= registry-cn-hz.7net.cc/septnet
 PROJECT_NAME ?= aliyun-api
 ifeq ($(TAG),master)

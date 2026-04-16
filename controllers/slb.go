@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strings"
 
 	aliyunslb "github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
@@ -163,11 +164,11 @@ func SearchSlb(ctx *gin.Context) {
 // @Failure      500  {object}  utils.ApiJson
 // @Router       /api/slb/refresh [post]
 func RefreshSlb(ctx *gin.Context) {
-	err := slb.RefreshSlb()
+	refreshCount, err := slb.RefreshSlb()
 	if err != nil {
 		internalServerError(ctx, err.Error())
 		ctx.JSON(500, utils.ApiResource(500, nil, err.Error()))
 		return
 	}
-	ctx.JSON(200, utils.ApiResource(200, nil, "ok"))
+	ctx.JSON(200, utils.ApiResource(200, refreshCount, fmt.Sprintf("成功刷新 %v 个实例", refreshCount)))
 }

@@ -58,6 +58,15 @@ definitions:
           type: string
         type: array
     type: object
+  controllers.searchEciReq:
+    properties:
+      ip:
+        description: 主机名,支持通配符
+        type: string
+      name:
+        description: 主机名,支持通配符
+        type: string
+    type: object
   controllers.searchHostReq:
     properties:
       hostname:
@@ -279,6 +288,43 @@ paths:
       summary: 获取ECS 内存信息
       tags:
       - 监控CMS
+  /api/eci/refresh:
+    post:
+      consumes:
+      - application/json
+      description: 刷新ECI容器组
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+      summary: 刷新ECI容器组
+      tags:
+      - ECI
+  /api/eci/search:
+    post:
+      consumes:
+      - application/json
+      description: 搜索ECI实例
+      parameters:
+      - description: request
+        in: body
+        name: req
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.searchEciReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: response
+          schema:
+            $ref: '#/definitions/utils.ApiJson'
+      summary: 搜索ECI实例
+      tags:
+      - ECI
   /api/ecs/refresh:
     post:
       consumes:
