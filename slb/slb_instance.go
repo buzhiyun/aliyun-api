@@ -69,10 +69,10 @@ func InitSlb() (err error) {
 // 查找所有有该ECS的slb
 func GetEcsSlb(ecsServerId string) (slbs []slb.LoadBalancer, err error) {
 
-	if err != nil {
-		log.Errorf("初始化 slb client 失败, %s", err.Error())
-		return
-	}
+	// if err != nil {
+	// 	log.Errorf("初始化 slb client 失败, %s", err.Error())
+	// 	return
+	// }
 
 	pageNum := 1 // 先查第一页的
 	maxPage := 1 //默认最大页数就是1

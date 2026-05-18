@@ -112,9 +112,9 @@ func DeleteIpFromACL(ctx *gin.Context) {
 }
 
 type searchSlbReq struct {
-	Slbname      string `json:"slbname"  validate:"required_without=Ip" err_info:"slb名称 hostname 和 ip 不能同时为空"` // 主机名,支持通配符
-	Ip           string `json:"ip"  validate:""`                                                               // 主机名,支持通配符
-	WithListener bool   `json:"with_listener,omitempty"`                                                       // 是否返回监听端口列表，默认false
+	Slbname      string `json:"slbname"  validate:"required_without=Ip" err_info:"slb名称 slbname 和 ip 不能同时为空"` // 主机名,支持通配符
+	Ip           string `json:"ip"  validate:""`                                                              // 主机名,支持通配符
+	WithListener bool   `json:"with_listener,omitempty"`                                                      // 是否返回监听端口列表，默认false
 	//Fuzzy    *bool  `json:"fuzzy,omitempty" `                                  // 是否模糊搜索 ，默认否
 }
 
