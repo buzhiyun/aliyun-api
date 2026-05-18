@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	aliyunslb "github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
 	"github.com/buzhiyun/aliyun-api/ecs"
+	"github.com/buzhiyun/aliyun-api/model"
 	"github.com/buzhiyun/aliyun-api/slb"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
@@ -112,8 +112,9 @@ func DeleteIpFromACL(ctx *gin.Context) {
 }
 
 type searchSlbReq struct {
-	Slbname string `json:"slbname"  validate:"required_without=Ip" err_info:"slb名称 hostname 和 ip 不能同时为空"` // 主机名,支持通配符
-	Ip      string `json:"ip"  validate:""`                                                               // 主机名,支持通配符
+	Slbname      string `json:"slbname"  validate:"required_without=Ip" err_info:"slb名称 hostname 和 ip 不能同时为空"` // 主机名,支持通配符
+	Ip           string `json:"ip"  validate:""`                                                               // 主机名,支持通配符
+	WithListener bool   `json:"with_listener,omitempty"`                                                       // 是否返回监听端口列表，默认false
 	//Fuzzy    *bool  `json:"fuzzy,omitempty" `                                  // 是否模糊搜索 ，默认否
 }
 
@@ -136,14 +137,14 @@ func SearchSlb(ctx *gin.Context) {
 		return
 	}
 
-	var slbs []aliyunslb.LoadBalancer
+	var slbs []model.SlbWithListener
 
 	if data.Slbname != "" {
-		slbs, err = slb.SearchByName(data.Slbname)
+		slbs, err = slb.SearchByName(data.Slbname, data.WithListener)
 	}
 
 	if data.Ip != "" {
-		slbs, err = slb.SearchByIp(data.Ip)
+		slbs, err = slb.SearchByIp(data.Ip, data.WithListener)
 	}
 	if err != nil {
 		internalServerError(ctx, err.Error())

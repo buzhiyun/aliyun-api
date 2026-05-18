@@ -8,6 +8,7 @@ import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/slb"
+	"github.com/buzhiyun/aliyun-api/model"
 	"github.com/buzhiyun/aliyun-api/msg"
 	"github.com/buzhiyun/aliyun-api/utils"
 	"github.com/buzhiyun/go-utils/log"
@@ -21,8 +22,9 @@ import (
 //}
 
 var (
-	_client      *slb.Client
-	slbInstances *[]slb.LoadBalancer
+	_client        *slb.Client
+	slbInstances   *[]slb.LoadBalancer
+	slbLintenerMap = make(map[string][]model.SlbListener)
 )
 
 func client() *slb.Client {
@@ -54,11 +56,11 @@ func InitSlb() (err error) {
 		err = errors.New("初始化 slb client 失败")
 	}
 
-	// 每隔600s 刷新一次Loadbalance列表
+	// 每隔780s 刷新一次Loadbalance列表
 	go func() {
 		for {
 			RefreshSlb()
-			time.Sleep(600 * time.Second)
+			time.Sleep(780 * time.Second)
 		}
 	}()
 	return
@@ -271,9 +273,9 @@ func RefreshSlb() (refreshCount int, err error) {
 		request.PageSize = requests.NewInteger(100)
 
 		response, _err := client().DescribeLoadBalancers(request)
-		if err != nil {
-			log.Errorf("[slb] 刷新slb列表失败, %s", err.Error())
-			msg.AliyunSdkAlert(err.Error())
+		if _err != nil {
+			log.Errorf("[slb] 刷新slb列表失败, %s", _err.Error())
+			msg.AliyunSdkAlert(_err.Error())
 			return refreshCount, _err
 		}
 		if response != nil {
@@ -290,28 +292,85 @@ func RefreshSlb() (refreshCount int, err error) {
 	}
 	refreshCount = len(*slbInstances)
 	log.Infof("[slb] 刷新列表成功, 共%d个实例", refreshCount)
+
+	// 刷新slb监听端口列表
+	for _, slb := range *slbInstances {
+		listeners, _err := GetSlbListenerPorts(slb.LoadBalancerId)
+		if _err != nil {
+			log.Errorf("[slb] 刷新slb %s 监听端口失败, %s", slb.LoadBalancerId, _err.Error())
+			msg.AliyunSdkAlert(_err.Error())
+			continue
+		}
+
+		slbLintenerMap[slb.LoadBalancerId] = []model.SlbListener{}
+		for _, listener := range listeners {
+			slbLintenerMap[slb.LoadBalancerId] = append(slbLintenerMap[slb.LoadBalancerId], model.SlbListener{
+				AclType:           listener.AclType,
+				Status:            listener.Status,
+				VServerGroupId:    listener.VServerGroupId,
+				ListenerProtocol:  listener.ListenerProtocol,
+				ListenerPort:      listener.ListenerPort,
+				AclId:             listener.AclId,
+				Scheduler:         listener.Scheduler,
+				Description:       listener.Description,
+				AclStatus:         listener.AclStatus,
+				BackendServerPort: listener.BackendServerPort,
+				BackendProtocol:   listener.BackendProtocol,
+				AclIds:            listener.AclIds,
+				Tags:              listener.Tags,
+			})
+		}
+
+		log.Debugf("[slb] 刷新slb %s 监听端口成功, 共%d个监听端口", slb.LoadBalancerId, len(listeners))
+	}
+	return
+}
+
+// 获取slb的监听端口
+func GetSlbListenerPorts(slbId string) (listeners []slb.ListenerInDescribeLoadBalancerListeners, err error) {
+	request := slb.CreateDescribeLoadBalancerListenersRequest()
+	// 连接超时设置，仅对当前请求有效。
+	request.SetConnectTimeout(5 * time.Second)
+	// 读超时设置，仅对当前请求有效。
+	request.SetReadTimeout(60 * time.Second)
+	request.Scheme = "https"
+	request.MaxResults = requests.NewInteger(100)
+
+	request.LoadBalancerId = new([]string{slbId})
+
+	response, err := client().DescribeLoadBalancerListeners(request)
+	if err != nil {
+		log.Errorf("[slb] 获取slb %s 的监听端口失败, %s", slbId, err.Error())
+		msg.AliyunSdkAlert(err.Error())
+		return listeners, err
+	}
+	listeners = append(listeners, response.Listeners...)
 	return
 }
 
 // 根据slb名称搜索slb
-func SearchByName(slbName string) (slbs []slb.LoadBalancer, err error) {
-	// 遍历 slbInstances 查找主机
-	for _, slb := range *slbInstances {
-		// 模糊匹配
-		if utils.MatchWildcard(slb.LoadBalancerName, slbName) {
-			slbs = append(slbs, slb)
+func SearchByName(slbName string, withListener bool) (slbs []model.SlbWithListener, err error) {
+	for _, s := range *slbInstances {
+		if utils.MatchWildcard(s.LoadBalancerName, slbName) {
+			item := model.SlbWithListener{LoadBalancer: s}
+			if withListener {
+				item.Listeners = slbLintenerMap[s.LoadBalancerId]
+			}
+			slbs = append(slbs, item)
 		}
 	}
 	return
 }
 
 // 根据ip搜索slb
-func SearchByIp(ip string) (slbs []slb.LoadBalancer, err error) {
-	// 遍历 slbInstances 查找slb
-	for _, slb := range *slbInstances {
-		// 模糊匹配
-		if utils.MatchWildcard(slb.Address, ip) {
-			slbs = append(slbs, slb)
+func SearchByIp(ip string, withListener bool) (slbs []model.SlbWithListener, err error) {
+	for _, s := range *slbInstances {
+		if utils.MatchWildcard(s.Address, ip) {
+			item := model.SlbWithListener{LoadBalancer: s}
+			if withListener {
+				item.Listeners = slbLintenerMap[s.LoadBalancerId]
+			}
+			slbs = append(slbs, item)
 		}
 	}
 	return

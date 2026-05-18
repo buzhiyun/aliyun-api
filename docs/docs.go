@@ -789,6 +789,10 @@ const docTemplate = `{
                 "slbname": {
                     "description": "主机名,支持通配符",
                     "type": "string"
+                },
+                "with_listener": {
+                    "description": "是否返回监听端口列表，默认false",
+                    "type": "boolean"
                 }
             }
         },

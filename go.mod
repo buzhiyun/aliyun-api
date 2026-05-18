@@ -1,6 +1,6 @@
 module github.com/buzhiyun/aliyun-api
 
-go 1.25
+go 1.26
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.63.107
